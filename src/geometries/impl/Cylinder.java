@@ -1,4 +1,4 @@
-package geometries;
+package geometries.impl;
 
 import primitives.Point;
 import primitives.Ray;
@@ -7,7 +7,7 @@ import primitives.Vector;
 /**
  * Class Cylinder represents a finite cylinder in 3D space.
  * It inherits from Tube and adds a height component.
- * @author Dan Zilberstein
+ * @author Dina Black and Bracha Rosenfeld
  */
 public class Cylinder extends Tube {
     /** The height of the cylinder */

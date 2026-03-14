@@ -1,9 +1,9 @@
-//package test;
+package test;
 
 import static java.lang.System.out;
 import static primitives.Util.isZero;
 
-import geometries.*;
+import geometries.impl.*;
 import primitives.*;
 
 /**

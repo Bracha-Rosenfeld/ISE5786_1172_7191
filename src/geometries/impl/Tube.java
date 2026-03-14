@@ -1,12 +1,13 @@
-package geometries;
+package geometries.impl;
 
+import geometries.api.RadialGeometry;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
 /**
  * Class Tube represents an infinite tube in 3D space, defined by a radius and an axis ray.
- * @author Dan Zilberstein
+ * @author Dina Black and Bracha Rosenfeld
  */
 public class Tube extends RadialGeometry {
     /** The axis ray of the tube */

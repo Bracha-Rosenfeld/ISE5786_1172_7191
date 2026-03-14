@@ -1,11 +1,12 @@
-package geometries;
+package geometries.impl;
 
+import geometries.api.RadialGeometry;
 import primitives.Point;
 import primitives.Vector;
 
 /**
  * Class Sphere represents a sphere in 3D space.
- * @author Dan Zilberstein
+ * @author Dina Black and Bracha Rosenfeld
  */
 public class Sphere extends RadialGeometry {
     /** The center point of the sphere */

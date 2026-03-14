@@ -1,12 +1,12 @@
-package geometries;
+package geometries.impl;
 
-//import geometries.api.Geometry;
+import geometries.api.Geometry;
 import primitives.Point;
 import primitives.Vector;
 
 /**
  * Class Plane represents a plane in 3D space.
- * @author Dan Zilberstein
+ * @author Dina Black and Bracha Rosenfeld
  */
 public class Plane extends Geometry {
     /** A point on the plane */

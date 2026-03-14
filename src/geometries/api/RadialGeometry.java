@@ -1,6 +1,4 @@
-package geometries;
-
-//import geometries.api.Geometry;
+package geometries.api;
 
 /**
  * Abstract class RadialGeometry is the base class for all geometric objects
