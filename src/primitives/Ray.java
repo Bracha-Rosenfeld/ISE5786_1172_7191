@@ -22,6 +22,13 @@ public class Ray {
         _direction = direction.normalize();
     }
 
+    /**
+     * Alias for getDirection to match the test call if needed.
+     * @return the normalized direction vector
+     */
+    public Vector direction() {
+        return _direction;
+    }
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -40,15 +47,4 @@ public class Ray {
         return "Ray: origin=" + _origin + ", direction=" + _direction;
     }
 
-    /**
-     * Getter for the origin point.
-     * @return the origin point
-     */
-    public Point origin() { return _origin; }
-
-    /**
-     * Getter for the direction vector.
-     * @return the normalized direction vector
-     */
-    public Vector direction() { return _direction; }
-}
+    }

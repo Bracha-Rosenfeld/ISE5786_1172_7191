@@ -27,4 +27,9 @@ public class Tube extends RadialGeometry {
     public Vector getNormal(Point point) {
         return null; // To be implemented in the next stage
     }
+
+    @Override
+    public String toString() {
+        return "Tube: axis=" + _axis + ", " + super.toString();
+    }
 }

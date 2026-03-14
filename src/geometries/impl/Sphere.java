@@ -8,7 +8,7 @@ import primitives.Vector;
  * Class Sphere represents a sphere in 3D space.
  * @author Dina Black and Bracha Rosenfeld
  */
-public class Sphere extends RadialGeometry {
+public final class Sphere extends RadialGeometry {
     /** The center point of the sphere */
     private final Point _center;
 
@@ -25,5 +25,10 @@ public class Sphere extends RadialGeometry {
     @Override
     public Vector getNormal(Point point) {
         return null; // To be implemented in the next stage [cite: 170]
+    }
+
+    @Override
+    public String toString() {
+        return "Sphere: center=" + _center + ", " + super.toString();
     }
 }

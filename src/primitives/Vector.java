@@ -14,20 +14,20 @@ public class Vector extends Point {
 
     /**
      * Constructor to initialize Vector based on three double values.
-     * * @param x first coordinate
+     * @param x first coordinate
      * @param y second coordinate
      * @param z third coordinate
      * @throws IllegalArgumentException if the vector is (0,0,0)
      */
     public Vector(double x, double y, double z) {
         super(x, y, z);
-        if (_xyz.equals(Double3.ZERO))
+        if (isZero(x) && isZero(y) && isZero(z))
             throw new IllegalArgumentException("Vector(0,0,0) is not allowed");
     }
 
     /**
      * Constructor to initialize Vector based on a Double3 object.
-     * * @param xyz Double3 value
+     * @param xyz Double3 value
      * @throws IllegalArgumentException if the vector is (0,0,0)
      */
     public Vector(Double3 xyz) {
@@ -48,7 +48,7 @@ public class Vector extends Point {
 
     /**
      * Scalar multiplication (scaling) of a vector.
-     * * @param rhs scaling factor
+     * @param rhs scaling factor
      * @return a new Vector scaled by rhs
      */
     public Vector scale(double rhs) {
@@ -66,18 +66,16 @@ public class Vector extends Point {
 
     /**
      * Dot product between two vectors.
-     * * @param other the other vector
+     * @param other the other vector
      * @return the scalar product
      */
     public double dotProduct(Vector other) {
-        return _xyz._d1() * other._xyz._d1() +
-                _xyz._d2() * other._xyz._d2() +
-                _xyz._d3() * other._xyz._d3();
+        Double3 product = _xyz.product(other._xyz);
+        return product._d1() + product._d2() + product._d3();
     }
-
     /**
      * Cross product between two vectors.
-     * * @param other the other vector
+     * @param other the other vector
      * @return a new Vector orthogonal to both
      */
     public Vector crossProduct(Vector other) {
@@ -89,7 +87,7 @@ public class Vector extends Point {
 
     /**
      * Calculates the squared length of the vector.
-     * * @return squared length
+     * @return squared length
      */
     public double lengthSquared() {
         return dotProduct(this);
@@ -97,7 +95,7 @@ public class Vector extends Point {
 
     /**
      * Calculates the length of the vector.
-     * * @return length
+     * @return length
      */
     public double length() {
         return Math.sqrt(lengthSquared());

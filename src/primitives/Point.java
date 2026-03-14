@@ -67,14 +67,13 @@ public class Point {
 
     /**
      * Calculates the squared distance between two points.
-     * * @param other the other point
+     * @param other the other point
      * @return the squared distance
      */
     public double distanceSquared(Point other) {
-        double dx = _xyz._d1() - other._xyz._d1();
-        double dy = _xyz._d2() - other._xyz._d2();
-        double dz = _xyz._d3() - other._xyz._d3();
-        return dx * dx + dy * dy + dz * dz;
+        Double3 diff = _xyz.subtract(other._xyz);
+        Double3 squared = diff.product(diff); // (dx^2, dy^2, dz^2)
+        return squared._d1() + squared._d2() + squared._d3();
     }
 
     /**
