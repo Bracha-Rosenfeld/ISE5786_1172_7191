@@ -47,7 +47,7 @@ public final class Main {
      * It is intended to be executed again in later stages, without modification,
      * to verify that new code does not break the existing functionality.
      */
-    public static void main() {
+    public static void main(String[] args) {
         pointTests();
         pointDistancesTests();
         vectorDoubleOperationTests();
