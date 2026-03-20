@@ -2,6 +2,7 @@ package geometries.impl;
 
 import primitives.Point;
 import primitives.Vector;
+
 /**
  * Class Triangle represents a triangle in 3D space.
  * It inherits from Polygon.
@@ -15,12 +16,13 @@ public final class Triangle extends Polygon {
      * @param p3 third vertex
      */
     public Triangle(Point p1, Point p2, Point p3) {
-        super(p1, p2, p3); // [cite: 115]
+        super(p1, p2, p3);
     }
 
     @Override
     public Vector getNormal(Point point) {
-        return null; // As required for stage 1
+        // Triangle is a Polygon, so it should return the polygon's normal
+        return super.getNormal(point);
     }
 
     @Override

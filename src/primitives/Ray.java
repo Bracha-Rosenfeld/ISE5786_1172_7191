@@ -1,19 +1,15 @@
 package primitives;
 
 /**
- * Class Ray represents a semi-line in 3D space, defined by an origin point and a direction vector.
- * The direction vector is always normalized.
+ * Class Ray represents a semi-line in 3D space.
  * @author Dan Zilberstein
  */
 public class Ray {
-    /** The origin point of the ray */
     private final Point  _origin;
-    /** The normalized direction vector of the ray */
     private final Vector _direction;
 
     /**
      * Constructor to initialize Ray with an origin point and a direction vector.
-     * The direction vector is automatically normalized.
      * @param origin    the starting point
      * @param direction the direction vector
      */
@@ -22,13 +18,12 @@ public class Ray {
         _direction = direction.normalize();
     }
 
-    /**
-     * Alias for getDirection to match the test call if needed.
-     * @return the normalized direction vector
-     */
-    public Vector direction() {
-        return _direction;
-    }
+    /** @return the origin point */
+    public Point origin() { return _origin; }
+
+    /** @return the normalized direction vector */
+    public Vector direction() { return _direction; }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -46,5 +41,4 @@ public class Ray {
     public String toString() {
         return "Ray: origin=" + _origin + ", direction=" + _direction;
     }
-
-    }
+}
