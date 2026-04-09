@@ -4,6 +4,7 @@ import geometries.api.RadialGeometry;
 import primitives.*;
 
 import java.util.List;
+import static primitives.Util.*; // <-- הוספנו ייבוא סטטי
 
 /**
  * Class Tube represents an infinite tube in 3D space, defined by a radius and an axis ray.
@@ -29,9 +30,12 @@ public class Tube extends RadialGeometry {
         Vector v = _axis.direction();
         Vector p0ToPoint = point.subtract(p0);
         double t = v.dotProduct(p0ToPoint);
-        Point o = primitives.Util.isZero(t) ? p0 : p0.add(v.scale(t));
+
+        // שימוש ב-isZero נקי
+        Point o = isZero(t) ? p0 : p0.add(v.scale(t));
         return point.subtract(o).normalize();
     }
+
     @Override
     public List<Point> findIntersections(Ray ray) {
         Vector v = ray.direction();
@@ -40,18 +44,17 @@ public class Tube extends RadialGeometry {
         Point pa = _axis.origin();
 
         // Calculate v - (v * va) * va
-        double vDotVa = Util.alignZero(v.dotProduct(va));
+        double vDotVa = alignZero(v.dotProduct(va));
         Vector vecA = null;
         try {
-            // If vDotVa is 0, va.scale(0) throws exception, so we check explicitly
-            Vector vMinusVaScale = Util.isZero(vDotVa) ? v : v.subtract(va.scale(vDotVa));
+            Vector vMinusVaScale = isZero(vDotVa) ? v : v.subtract(va.scale(vDotVa));
             vecA = vMinusVaScale;
         } catch (IllegalArgumentException e) {
             // v is parallel to va. If the ray is parallel to the tube axis, there are no intersections.
             return null;
         }
 
-        double a = Util.alignZero(vecA.lengthSquared());
+        double a = alignZero(vecA.lengthSquared());
         double b = 0;
         double c = 0;
 
@@ -63,26 +66,26 @@ public class Tube extends RadialGeometry {
         }
 
         if (deltaP != null) {
-            double dpDotVa = Util.alignZero(deltaP.dotProduct(va));
+            double dpDotVa = alignZero(deltaP.dotProduct(va));
             Vector vecB = null;
             try {
-                vecB = Util.isZero(dpDotVa) ? deltaP : deltaP.subtract(va.scale(dpDotVa));
+                vecB = isZero(dpDotVa) ? deltaP : deltaP.subtract(va.scale(dpDotVa));
             } catch (IllegalArgumentException e) {
                 // deltaP is parallel to va (vecB is zero vector)
             }
 
             if (vecB != null) {
-                b = Util.alignZero(2 * vecA.dotProduct(vecB));
-                c = Util.alignZero(vecB.lengthSquared() - _radius * _radius);
+                b = alignZero(2 * vecA.dotProduct(vecB));
+                c = alignZero(vecB.lengthSquared() - _radius * _radius);
             } else {
-                c = Util.alignZero(- _radius * _radius);
+                c = alignZero(- _radius * _radius);
             }
         } else {
-            c = Util.alignZero(- _radius * _radius);
+            c = alignZero(- _radius * _radius);
         }
 
         // Calculate the discriminant: DELTA = b^2 - 4ac
-        double discriminant = Util.alignZero(b * b - 4 * a * c);
+        double discriminant = alignZero(b * b - 4 * a * c);
 
         // If discriminant <= 0, there are no intersections (tangents return null per requirements)
         if (discriminant <= 0) {
@@ -90,8 +93,8 @@ public class Tube extends RadialGeometry {
         }
 
         double sqrtDiscriminant = Math.sqrt(discriminant);
-        double t1 = Util.alignZero((-b - sqrtDiscriminant) / (2 * a));
-        double t2 = Util.alignZero((-b + sqrtDiscriminant) / (2 * a));
+        double t1 = alignZero((-b - sqrtDiscriminant) / (2 * a));
+        double t2 = alignZero((-b + sqrtDiscriminant) / (2 * a));
 
         if (t1 > 0 && t2 > 0) {
             return List.of(ray.getPoint(t1), ray.getPoint(t2));

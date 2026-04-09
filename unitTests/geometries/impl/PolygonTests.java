@@ -1,11 +1,8 @@
 package geometries.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
@@ -41,9 +38,7 @@ class PolygonTests {
    /** Point located on one of the polygon edges */
    private static final Point  POINT4        = new Point(0, 0.5, 0.5);
 
-   /**
-    * Delta value for accuracy when comparing double values.
-    */
+   /** Delta value for accuracy when comparing double values. */
    private static final double DELTA         = 1e-6;
 
    /** Error message for wrong plane intersection */
@@ -57,9 +52,7 @@ class PolygonTests {
     */
    @Test
    void testConstructor() {
-
       // ============ Equivalence Partitions Tests ==============
-
       // TC01: Correct convex quadrilateral with vertices in correct order
       assertDoesNotThrow(() -> new Polygon(POINT_Z, POINT_X, POINT_Y, POINT1),
               "Failed constructing a correct polygon");
@@ -77,7 +70,6 @@ class PolygonTests {
               "Constructed a concave polygon");
 
       // =============== Boundary Values Tests ==================
-
       // TC11: Vertex on a side
       assertThrows(IllegalArgumentException.class, () -> new Polygon(POINT_Z, POINT_X, POINT_Y, POINT4),
               "Constructed a polygon with a vertex on a side");
@@ -99,14 +91,16 @@ class PolygonTests {
    @Test
    void testGetNormal() {
       // ============ Equivalence Partitions Tests ==============
-      Point[] pts     =
-              { POINT_Z, POINT_X, POINT_Y, POINT1 };
+      Point[] pts = { POINT_Z, POINT_X, POINT_Y, POINT1 };
       Polygon polygon = new Polygon(pts);
+
       // Ensure method does not throw exception
       assertDoesNotThrow(() -> polygon.getNormal(POINT_Z), "getNormal() threw unexpected exception");
       Vector result = polygon.getNormal(POINT_Z);
+
       // Ensure |n| = 1
       assertEquals(1, result.length(), DELTA, "Polygon normal is not a unit vector");
+
       // Ensure normal is orthogonal to all edges
       for (int i = 0; i < pts.length; ++i) {
          Vector edge = pts[i].subtract(pts[i == 0 ? pts.length - 1 : i - 1]);
@@ -145,6 +139,7 @@ class PolygonTests {
 
       // =============== Boundary Values Tests ==================
 
+      // **** Group 1: Polygon specific boundary cases
       // BV01: Ray intersects on an edge (0 points)
       assertNull(polygon.findIntersections(new Ray(new Point(0, 1, -1), new Vector(0, 0, 1))),
               "Ray crosses on edge");
@@ -156,5 +151,30 @@ class PolygonTests {
       // BV03: Ray intersects on an edge continuation (0 points)
       assertNull(polygon.findIntersections(new Ray(new Point(2, 1, -1), new Vector(0, 0, 1))),
               "Ray crosses on edge continuation");
+
+      // **** Group 2: Plane boundary cases applied to Polygon
+      // BV04: Ray is parallel to and included in the plane
+      assertNull(polygon.findIntersections(new Ray(new Point(0, 0, 0), new Vector(1, 0, 0))),
+              "Ray is included in the plane");
+
+      // BV05: Ray is parallel to the plane but not included
+      assertNull(polygon.findIntersections(new Ray(new Point(0, 0, 1), new Vector(1, 0, 0))),
+              "Ray is parallel to the plane");
+
+      // BV06: Ray is orthogonal to the plane and starts before it (misses polygon)
+      assertNull(polygon.findIntersections(new Ray(new Point(3, 0, -1), new Vector(0, 0, 1))),
+              "Ray is orthogonal and starts before plane missing polygon");
+
+      // BV07: Ray is orthogonal and starts exactly IN the polygon's plane
+      assertNull(polygon.findIntersections(new Ray(new Point(0, 0, 0), new Vector(0, 0, 1))),
+              "Ray is orthogonal and starts in plane");
+
+      // BV08: Ray is orthogonal and starts AFTER the polygon's plane
+      assertNull(polygon.findIntersections(new Ray(new Point(0, 0, 1), new Vector(0, 0, 1))),
+              "Ray is orthogonal and starts after plane");
+
+      // BV09: Ray begins ON the polygon's plane but not parallel/orthogonal
+      assertNull(polygon.findIntersections(new Ray(new Point(0, 0, 0), new Vector(1, 1, 1))),
+              "Ray begins on the plane");
    }
 }

@@ -3,8 +3,8 @@ package geometries.impl;
 import geometries.api.RadialGeometry;
 import primitives.*;
 
-
 import java.util.List;
+import static primitives.Util.alignZero;
 
 /**
  * Class Sphere represents a sphere in 3D space.
@@ -20,7 +20,7 @@ public final class Sphere extends RadialGeometry {
      * @param radius the radius value
      */
     public Sphere(Point center, double radius) {
-        super(radius); // [cite: 115, 126]
+        super(radius);
         _center = center;
     }
 
@@ -30,7 +30,6 @@ public final class Sphere extends RadialGeometry {
         Vector v = ray.direction();
 
         // Special case: ray starts exactly at the center of the sphere
-        // To avoid creating a ZERO vector in subtraction, we handle it explicitly.
         if (_center.equals(p0)) {
             return List.of(ray.getPoint(_radius));
         }
@@ -38,34 +37,30 @@ public final class Sphere extends RadialGeometry {
         Vector u = _center.subtract(p0);
 
         // tm = v * u
-        double tm = Util.alignZero(v.dotProduct(u));
+        double tm = alignZero(v.dotProduct(u));
 
-        // d = sqrt(|u|^2 - tm^2)
-        double d = Util.alignZero(Math.sqrt(u.lengthSquared() - tm * tm));
+        // Calculate dSquared and align it to 0 before taking the square root to avoid NaN
+        double dSquared = alignZero(u.lengthSquared() - tm * tm);
+        double d = Math.sqrt(dSquared);
 
         // If d >= radius, there are no intersections.
-        // Note: Tangent case (d == radius) returns null per requirements (0 points).
-        if (d >= _radius) {
+        // Tangent case (d == radius) returns null per requirements.
+        if (alignZero(d - _radius) >= 0) {
             return null;
         }
 
         // th = sqrt(r^2 - d^2)
-        double th = Util.alignZero(Math.sqrt(_radius * _radius - d * d));
+        double th = alignZero(Math.sqrt(_radius * _radius - dSquared));
 
         // Calculate the distances to the intersection points
-        double t1 = Util.alignZero(tm - th);
-        double t2 = Util.alignZero(tm + th);
+        double t1 = alignZero(tm - th);
+        double t2 = alignZero(tm + th);
 
         // We only care about intersections strictly IN FRONT of the ray (t > 0)
-        if (t1 > 0 && t2 > 0) {
+        // Since t1 <= t2, we can simplify the logic:
+        if (t1 > 0) {
             return List.of(ray.getPoint(t1), ray.getPoint(t2));
         }
-
-        // Using ternary operators is recommended for simple logic (KISS principle)
-        if (t1 > 0) {
-            return List.of(ray.getPoint(t1));
-        }
-
         if (t2 > 0) {
             return List.of(ray.getPoint(t2));
         }

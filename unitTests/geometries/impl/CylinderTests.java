@@ -146,7 +146,7 @@ class CylinderTests {
         // EP32: Crosses bottom base and top base
         assertEquals(2, cylinder.findIntersections(new Ray(new Point(0, 0, -1), new Vector(0.2, 0, 1))).size(), "Diagonal: base to base");
         // EP33: Crosses bottom base and envelope
-        assertEquals(2, cylinder.findIntersections(new Ray(new Point(0, 0, -1), new Vector(1, 0, 1))).size(), "Diagonal: bottom to envelope");
+        assertEquals(2, cylinder.findIntersections(new Ray(new Point(0, 0, -1), new Vector(0.5, 0, 1))).size(), "Diagonal: bottom to envelope");
         // EP34: Crosses envelope and top base
         assertEquals(2, cylinder.findIntersections(new Ray(new Point(2, 0, 0.5), new Vector(-1, 0, 1))).size(), "Diagonal: envelope to top");
         // EP35: Starts inside, hits top base
@@ -172,7 +172,7 @@ class CylinderTests {
         // GROUP 4: CORNERS AND EDGES (Crucial for cylinder)
         // ==========================================================
         // BV41: Crosses exactly through bottom and top corners
-        assertEquals(2, cylinder.findIntersections(new Ray(new Point(2, 0, -1), new Vector(-1, 0, 1.5))).size(), "Corners: bottom to top");
+        assertEquals(2, cylinder.findIntersections(new Ray(new Point(2, 0, -1), new Vector(-1, 0, 1))).size(), "Corners: bottom to top");
         // BV42: Crosses exactly through envelope and top corner
         assertEquals(2, cylinder.findIntersections(new Ray(new Point(2, 0, 1), new Vector(-1, 0, 1))).size(), "Corners: env to top corner");
         // BV43: Crosses exactly through bottom corner and envelope

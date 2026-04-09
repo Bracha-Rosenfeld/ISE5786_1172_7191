@@ -4,7 +4,7 @@ package primitives;
  * Class Ray represents a semi-line in 3D space.
  * @author Dan Zilberstein
  */
-public class Ray {
+public final class Ray {
     private final Point  _origin;
     private final Vector _direction;
 
@@ -39,7 +39,7 @@ public class Ray {
             return _origin;
         }
     }
-        @Override
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         return (obj instanceof Ray other)

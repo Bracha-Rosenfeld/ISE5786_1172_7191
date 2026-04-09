@@ -72,10 +72,14 @@ class TriangleTests {
         assertNull(triangle.findIntersections(new Ray(new Point(0, 2, -1), new Vector(0, 0, 1))),
                 "Ray crosses outside against vertex");
 
+        // EP04: Ray's line does not intersect the triangle's plane (0 points)
+        assertNull(triangle.findIntersections(new Ray(new Point(1, 0, 2), new Vector(1, 0, 1))),
+                "Ray's line is outside the triangle's plane");
+
         // =============== Boundary Values Tests ==================
 
+        // **** Group 1: Triangle specific boundary cases
         // BV01: Ray intersects on an edge (0 points)
-        // Midpoint of edge (0,1,0) to (1,-1,0) is (0.5, 0, 0)
         assertNull(triangle.findIntersections(new Ray(new Point(0.5, 0, -1), new Vector(0, 0, 1))),
                 "Ray crosses on edge");
 
@@ -84,8 +88,32 @@ class TriangleTests {
                 "Ray crosses in vertex");
 
         // BV03: Ray intersects on an edge continuation (0 points)
-        // Continuing the edge (0,1,0) to (1,-1,0) further down to y=-3 gives x=2
         assertNull(triangle.findIntersections(new Ray(new Point(2, -3, -1), new Vector(0, 0, 1))),
                 "Ray crosses on edge continuation");
+
+        // **** Group 2: Plane boundary cases applied to Triangle
+        // BV04: Ray is parallel to and included in the plane
+        assertNull(triangle.findIntersections(new Ray(new Point(0, 0, 0), new Vector(1, 0, 0))),
+                "Ray is included in the plane");
+
+        // BV05: Ray is parallel to the plane but not included
+        assertNull(triangle.findIntersections(new Ray(new Point(0, 0, 1), new Vector(1, 0, 0))),
+                "Ray is parallel to the plane");
+
+        // BV06: Ray is orthogonal to the plane and starts before it (misses triangle)
+        assertNull(triangle.findIntersections(new Ray(new Point(2, 0, -1), new Vector(0, 0, 1))),
+                "Ray is orthogonal and starts before plane missing triangle");
+
+        // BV07: Ray is orthogonal and starts exactly IN the triangle's plane
+        assertNull(triangle.findIntersections(new Ray(new Point(0, 0, 0), new Vector(0, 0, 1))),
+                "Ray is orthogonal and starts in plane");
+
+        // BV08: Ray is orthogonal and starts AFTER the triangle's plane
+        assertNull(triangle.findIntersections(new Ray(new Point(0, 0, 1), new Vector(0, 0, 1))),
+                "Ray is orthogonal and starts after plane");
+
+        // BV09: Ray begins ON the triangle's plane but not parallel/orthogonal
+        assertNull(triangle.findIntersections(new Ray(new Point(0, 0, 0), new Vector(1, 1, 1))),
+                "Ray begins on the plane");
     }
 }

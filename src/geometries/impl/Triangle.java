@@ -1,7 +1,6 @@
 package geometries.impl;
 
 import primitives.*;
-
 import java.util.List;
 
 /**
@@ -44,7 +43,6 @@ public final class Triangle extends Polygon {
         Vector v3 = p3.subtract(p0);
 
         // Normals to the planes created by the ray and each edge
-        // Note: No need to normalize these vectors to just check signs! This saves calculation time.
         Vector n1 = v1.crossProduct(v2);
         Vector n2 = v2.crossProduct(v3);
         Vector n3 = v3.crossProduct(v1);
@@ -62,17 +60,11 @@ public final class Triangle extends Polygon {
 
         // The point is inside the triangle strictly if all dot products have the SAME sign
         if ((vn1 > 0 && vn2 > 0 && vn3 > 0) || (vn1 < 0 && vn2 < 0 && vn3 < 0)) {
-            return planeIntersections;
+            return planeIntersections; // Reusing the list from the plane - Excellent!
         }
 
         // Otherwise, it's outside
         return null;
-    }
-
-    @Override
-    public Vector getNormal(Point point) {
-        // Triangle is a Polygon, so it should return the polygon's normal
-        return super.getNormal(point);
     }
 
     @Override

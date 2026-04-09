@@ -13,8 +13,7 @@ import java.util.List;
  * Composite class representing a collection of geometries.
  * Implements the Intersectable interface.
  */
-public class Geometries extends Intersectable {
-
+public final class Geometries extends Intersectable {
     /** List of geometries in the collection */
     private final List<Intersectable> _geometries = new ArrayList<>();
 

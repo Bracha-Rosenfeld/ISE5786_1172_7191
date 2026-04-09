@@ -1,12 +1,8 @@
 package geometries.impl;
 
-import primitives.*;
-
-import java.util.List;
-
-//import geometries.api.Geometry;
 import geometries.api.Geometry;
 import primitives.*;
+import java.util.List;
 
 /**
  * Represents a convex polygon in a 3D Cartesian coordinate system.
@@ -41,7 +37,7 @@ public class Polygon extends Geometry {
     * </ul>
     * @param  vertices                 polygon vertices in edge order
     * @throws IllegalArgumentException if the vertices do not form a valid convex
-    *                                  polygon
+    * polygon
     */
    public Polygon(Point... vertices) {
       if (vertices.length < 3)
@@ -74,6 +70,7 @@ public class Polygon extends Geometry {
             throw new IllegalArgumentException("All vertices must be ordered and the polygon must be convex");
       }
    }
+
    @Override
    public List<Point> findIntersections(Ray ray) {
       // 1. Intersect with the plane containing the polygon
@@ -118,6 +115,9 @@ public class Polygon extends Geometry {
       // If we passed all checks, the point is strictly inside the polygon
       return planeIntersections;
    }
+
    @Override
-   public Vector getNormal(Point point) { return _plane.getNormal(point); }
+   public Vector getNormal(Point point) {
+      return _plane.getNormal(point);
+   }
 }
