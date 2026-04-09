@@ -24,7 +24,22 @@ public class Ray {
     /** @return the normalized direction vector */
     public Vector direction() { return _direction; }
 
-    @Override
+    /**
+     * Calculates a point on the ray's line at a given distance from the ray's origin.
+     * Uses the formula: P = P0 + t * v
+     *
+     * @param t the distance from the ray's origin
+     * @return the calculated point
+     */
+    public Point getPoint(double t) {
+        try {
+            return _origin.add(_direction.scale(t));
+        } catch (IllegalArgumentException e) {
+            // Catching the case where scaling by t creates a ZERO vector (which throws an exception)
+            return _origin;
+        }
+    }
+        @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         return (obj instanceof Ray other)

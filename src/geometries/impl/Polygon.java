@@ -1,6 +1,6 @@
 package geometries.impl;
 
-import static primitives.Util.isZero;
+import primitives.*;
 
 import java.util.List;
 
@@ -65,7 +65,7 @@ public class Polygon extends Geometry {
       boolean positive = edge1.crossProduct(edge2).dotProduct(n) > 0;
       for (var i = 1; i < _size; ++i) {
          // Test that the point is in the same plane as calculated originally
-         if (!isZero(vertices[i].subtract(vertices[0]).dotProduct(n)))
+         if (!Util.isZero(vertices[i].subtract(vertices[0]).dotProduct(n)))
             throw new IllegalArgumentException("All vertices of a polygon must lay in the same plane");
          // Test the consequent edges have
          edge1 = edge2;
@@ -74,7 +74,50 @@ public class Polygon extends Geometry {
             throw new IllegalArgumentException("All vertices must be ordered and the polygon must be convex");
       }
    }
+   @Override
+   public List<Point> findIntersections(Ray ray) {
+      // 1. Intersect with the plane containing the polygon
+      List<Point> planeIntersections = _plane.findIntersections(ray);
 
+      // If the ray doesn't intersect the plane, it definitely doesn't intersect the polygon
+      if (planeIntersections == null) {
+         return null;
+      }
+
+      Point p0 = ray.origin();
+      Vector v = ray.direction();
+
+      // We check the first edge separately to determine the initial sign (positive or negative)
+      Vector v1 = _vertices.get(_size - 1).subtract(p0);
+      Vector v2 = _vertices.get(0).subtract(p0);
+      Vector n = v1.crossProduct(v2);
+
+      double vn = Util.alignZero(v.dotProduct(n));
+
+      // If the ray intersects exactly on an edge or vertex, return null per requirements
+      if (vn == 0) {
+         return null;
+      }
+
+      // Determine the expected sign for all subsequent checks
+      boolean isPositive = vn > 0;
+
+      // Loop over the rest of the edges
+      for (int i = 1; i < _size; ++i) {
+         v1 = v2;
+         v2 = _vertices.get(i).subtract(p0);
+         n = v1.crossProduct(v2);
+         vn = Util.alignZero(v.dotProduct(n));
+
+         // If vn is 0, it's on an edge/vertex. If the sign differs, it's outside.
+         if (vn == 0 || (vn > 0) != isPositive) {
+            return null;
+         }
+      }
+
+      // If we passed all checks, the point is strictly inside the polygon
+      return planeIntersections;
+   }
    @Override
    public Vector getNormal(Point point) { return _plane.getNormal(point); }
 }

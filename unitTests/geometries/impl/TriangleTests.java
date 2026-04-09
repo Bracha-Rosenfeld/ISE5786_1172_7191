@@ -3,6 +3,7 @@ package geometries.impl;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import primitives.*;
+import java.util.List;
 
 /**
  * Unit tests for class {@link Triangle}.
@@ -46,5 +47,45 @@ class TriangleTests {
 
         // =============== Boundary Values Tests ==================
         // No specific boundary cases for getNormal in Triangle according to requirements
+    }
+
+    /**
+     * Test method for {@link Triangle#findIntersections(primitives.Ray)}.
+     */
+    @Test
+    void testFindIntersections() {
+        Triangle triangle = new Triangle(new Point(0, 1, 0), new Point(1, -1, 0), new Point(-1, -1, 0));
+
+        // ============ Equivalence Partitions Tests ==============
+
+        // EP01: Ray intersects inside the triangle (1 point)
+        List<Point> resultEP01 = triangle.findIntersections(new Ray(new Point(0, 0, -1), new Vector(0, 0, 1)));
+        assertNotNull(resultEP01, "Must be not null");
+        assertEquals(1, resultEP01.size(), "Wrong number of points");
+        assertEquals(new Point(0, 0, 0), resultEP01.get(0), "Ray crosses inside triangle");
+
+        // EP02: Ray intersects outside against an edge (0 points)
+        assertNull(triangle.findIntersections(new Ray(new Point(2, 0, -1), new Vector(0, 0, 1))),
+                "Ray crosses outside against edge");
+
+        // EP03: Ray intersects outside against a vertex (0 points)
+        assertNull(triangle.findIntersections(new Ray(new Point(0, 2, -1), new Vector(0, 0, 1))),
+                "Ray crosses outside against vertex");
+
+        // =============== Boundary Values Tests ==================
+
+        // BV01: Ray intersects on an edge (0 points)
+        // Midpoint of edge (0,1,0) to (1,-1,0) is (0.5, 0, 0)
+        assertNull(triangle.findIntersections(new Ray(new Point(0.5, 0, -1), new Vector(0, 0, 1))),
+                "Ray crosses on edge");
+
+        // BV02: Ray intersects in a vertex (0 points)
+        assertNull(triangle.findIntersections(new Ray(new Point(0, 1, -1), new Vector(0, 0, 1))),
+                "Ray crosses in vertex");
+
+        // BV03: Ray intersects on an edge continuation (0 points)
+        // Continuing the edge (0,1,0) to (1,-1,0) further down to y=-3 gives x=2
+        assertNull(triangle.findIntersections(new Ray(new Point(2, -3, -1), new Vector(0, 0, 1))),
+                "Ray crosses on edge continuation");
     }
 }
