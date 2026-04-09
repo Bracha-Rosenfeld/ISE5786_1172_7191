@@ -22,21 +22,21 @@ class PolygonTests {
    /** Default constructor to satisfy JavaDoc generator */
    PolygonTests() { /* to satisfy JavaDoc generator */ }
 
-   /** Vertex (1,0,0) used in polygon tests */
-   private static final Point  POINT_X       = new Point(1, 0, 0);
-   /** Vertex (0,1,0) used in polygon tests */
-   private static final Point  POINT_Y       = new Point(0, 1, 0);
-   /** Vertex (0,0,1) used in polygon tests */
-   private static final Point  POINT_Z       = new Point(0, 0, 1);
+   /** Vertex (2,1,1) used in polygon tests */
+   private static final Point  POINT_X       = new Point(2, 1, 1);
+   /** Vertex (1,2,1) used in polygon tests */
+   private static final Point  POINT_Y       = new Point(1, 2, 1);
+   /** Vertex (1,1,2) used in polygon tests */
+   private static final Point  POINT_Z       = new Point(1, 1, 2);
 
    /** Additional vertex used for valid polygon construction */
-   private static final Point  POINT1        = new Point(-1, 1, 1);
+   private static final Point  POINT1        = new Point(0, 2, 2);
    /** Point not in the polygon plane */
-   private static final Point  POINT2        = new Point(0, 2, 2);
+   private static final Point  POINT2        = new Point(1, 3, 3);
    /** Point that creates a concave polygon */
-   private static final Point  POINT3        = new Point(0.5, 0.25, 0.5);
+   private static final Point  POINT3        = new Point(1.5, 1.25, 1.5);
    /** Point located on one of the polygon edges */
-   private static final Point  POINT4        = new Point(0, 0.5, 0.5);
+   private static final Point  POINT4        = new Point(1, 1.5, 1.5);
 
    /** Delta value for accuracy when comparing double values. */
    private static final double DELTA         = 1e-6;
@@ -113,68 +113,68 @@ class PolygonTests {
     */
    @Test
    void testFindIntersections() {
-      // A simple square polygon on the XY plane (z=0)
+      // A simple square polygon on the XY plane shifted (z=2)
       Polygon polygon = new Polygon(
-              new Point(-1, -1, 0),
-              new Point(1, -1, 0),
-              new Point(1, 1, 0),
-              new Point(-1, 1, 0)
+              new Point(1, 1, 2),
+              new Point(3, 1, 2),
+              new Point(3, 3, 2),
+              new Point(1, 3, 2)
       );
 
       // ============ Equivalence Partitions Tests ==============
 
       // EP01: Ray intersects inside the polygon (1 point)
-      List<Point> resultEP01 = polygon.findIntersections(new Ray(new Point(0, 0, -1), new Vector(0, 0, 1)));
+      List<Point> resultEP01 = polygon.findIntersections(new Ray(new Point(2, 2, 1), new Vector(0, 0, 1)));
       assertNotNull(resultEP01, "Must be not null");
       assertEquals(1, resultEP01.size(), "Wrong number of points");
-      assertEquals(new Point(0, 0, 0), resultEP01.get(0), "Ray crosses inside polygon");
+      assertEquals(new Point(2, 2, 2), resultEP01.get(0), "Ray crosses inside polygon");
 
       // EP02: Ray intersects outside against an edge (0 points)
-      assertNull(polygon.findIntersections(new Ray(new Point(0, 2, -1), new Vector(0, 0, 1))),
+      assertNull(polygon.findIntersections(new Ray(new Point(2, 4, 1), new Vector(0, 0, 1))),
               "Ray crosses outside against edge");
 
       // EP03: Ray intersects outside against a vertex (0 points)
-      assertNull(polygon.findIntersections(new Ray(new Point(2, 2, -1), new Vector(0, 0, 1))),
+      assertNull(polygon.findIntersections(new Ray(new Point(4, 4, 1), new Vector(0, 0, 1))),
               "Ray crosses outside against vertex");
 
       // =============== Boundary Values Tests ==================
 
       // **** Group 1: Polygon specific boundary cases
       // BV01: Ray intersects on an edge (0 points)
-      assertNull(polygon.findIntersections(new Ray(new Point(0, 1, -1), new Vector(0, 0, 1))),
+      assertNull(polygon.findIntersections(new Ray(new Point(2, 3, 1), new Vector(0, 0, 1))),
               "Ray crosses on edge");
 
       // BV02: Ray intersects in a vertex (0 points)
-      assertNull(polygon.findIntersections(new Ray(new Point(1, 1, -1), new Vector(0, 0, 1))),
+      assertNull(polygon.findIntersections(new Ray(new Point(3, 3, 1), new Vector(0, 0, 1))),
               "Ray crosses in vertex");
 
       // BV03: Ray intersects on an edge continuation (0 points)
-      assertNull(polygon.findIntersections(new Ray(new Point(2, 1, -1), new Vector(0, 0, 1))),
+      assertNull(polygon.findIntersections(new Ray(new Point(4, 3, 1), new Vector(0, 0, 1))),
               "Ray crosses on edge continuation");
 
       // **** Group 2: Plane boundary cases applied to Polygon
       // BV04: Ray is parallel to and included in the plane
-      assertNull(polygon.findIntersections(new Ray(new Point(0, 0, 0), new Vector(1, 0, 0))),
+      assertNull(polygon.findIntersections(new Ray(new Point(2, 2, 2), new Vector(1, 0, 0))),
               "Ray is included in the plane");
 
       // BV05: Ray is parallel to the plane but not included
-      assertNull(polygon.findIntersections(new Ray(new Point(0, 0, 1), new Vector(1, 0, 0))),
+      assertNull(polygon.findIntersections(new Ray(new Point(2, 2, 3), new Vector(1, 0, 0))),
               "Ray is parallel to the plane");
 
       // BV06: Ray is orthogonal to the plane and starts before it (misses polygon)
-      assertNull(polygon.findIntersections(new Ray(new Point(3, 0, -1), new Vector(0, 0, 1))),
+      assertNull(polygon.findIntersections(new Ray(new Point(5, 2, 1), new Vector(0, 0, 1))),
               "Ray is orthogonal and starts before plane missing polygon");
 
       // BV07: Ray is orthogonal and starts exactly IN the polygon's plane
-      assertNull(polygon.findIntersections(new Ray(new Point(0, 0, 0), new Vector(0, 0, 1))),
+      assertNull(polygon.findIntersections(new Ray(new Point(2, 2, 2), new Vector(0, 0, 1))),
               "Ray is orthogonal and starts in plane");
 
       // BV08: Ray is orthogonal and starts AFTER the polygon's plane
-      assertNull(polygon.findIntersections(new Ray(new Point(0, 0, 1), new Vector(0, 0, 1))),
+      assertNull(polygon.findIntersections(new Ray(new Point(2, 2, 3), new Vector(0, 0, 1))),
               "Ray is orthogonal and starts after plane");
 
       // BV09: Ray begins ON the polygon's plane but not parallel/orthogonal
-      assertNull(polygon.findIntersections(new Ray(new Point(0, 0, 0), new Vector(1, 1, 1))),
+      assertNull(polygon.findIntersections(new Ray(new Point(2, 2, 2), new Vector(1, 1, 1))),
               "Ray begins on the plane");
    }
 }
