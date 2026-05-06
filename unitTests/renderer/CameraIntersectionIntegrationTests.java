@@ -16,7 +16,7 @@ import primitives.Vector;
  * The tests verify the combination of ray construction and intersection calculations.
  * * @author Project Assistant
  */
-class CameraIntersectionIntegration {
+class CameraIntersectionIntegrationTests {
 
     /** * Base camera builder with standard 3x3 resolution and distance 1
      * as required by the integration test instructions.
