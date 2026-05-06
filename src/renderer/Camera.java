@@ -2,6 +2,7 @@ package renderer;
 
 import primitives.Util.*;
 import primitives.*;
+import scene.Scene;
 
 import java.util.MissingResourceException;
 
@@ -23,6 +24,11 @@ public class Camera implements Cloneable {
     private double _width;
     private double _height;
     private double _distance;
+
+    /** Image writer for the camera */
+    private ImageWriter _imageWriter;
+    /** Ray tracer for the camera */
+    private RayTracerBase _rayTracer;
 
     // View plane resolution (defaulting to 1)
     private int _nX = 1;
@@ -168,7 +174,14 @@ public class Camera implements Cloneable {
             checkResolution();
             checkLocationAndDirection();
             checkViewPlane();
-
+            // Ensure resolution was set and create ImageWriter
+            if (_camera._width == 0 || _camera._height == 0) // ודאי שאלו שמות השדות אצלך לרזולוציה
+                throw new MissingResourceException("Missing resolution data", "Camera", "resolution");
+            _camera._imageWriter = new ImageWriter(_camera._nX, _camera._nY);
+            // If rayTracer was not provided, set a default one
+            if (_camera._rayTracer == null) {
+                setRayTracer(new Scene("default"), RayTracerType.SIMPLE);
+            }
             try {
                 // Return a clone of the internal camera object
                 return (Camera) _camera.clone();
@@ -223,5 +236,63 @@ public class Camera implements Cloneable {
             _camera._pixelWidth = _camera._width / _camera._nX;
             _camera._pixelHeight = _camera._height / _camera._nY;
         }
+
+        /**
+         * Sets the ray tracer for the camera.
+         * @param scene the scene to render
+         * @param type the type of ray tracer to use
+         * @return the builder itself
+         */
+        public Builder setRayTracer(Scene scene, RayTracerType type) {
+            if (type == RayTracerType.SIMPLE) {
+                _camera._rayTracer = new SimpleRayTracer(scene);
+            } else {
+                throw new IllegalArgumentException("Unsupported ray tracer type");
+            }
+            return this;
+        }
+    }
+    /**
+     * Renders the image by casting rays through all pixels.
+     * @return the camera itself
+     */
+    public Camera renderImage() {
+        for (int i = 0; i < _nY; i++) {
+            for (int j = 0; j < _nX; j++) {
+                castRay(_nX, _nY, j, i);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Casts a ray through a specific pixel and colors it.
+     */
+    private void castRay(int nX, int nY, int j, int i) {
+        Ray ray = constructRay(j, i);
+        Color color = _rayTracer.traceRay(ray);
+        _imageWriter.writePixel(j, i, color);
+    }
+
+    /**
+     * Adds a grid to the image.
+     */
+    public Camera printGrid(int interval, Color color) {
+        for (int i = 0; i < _nY; i++) {
+            for (int j = 0; j < _nX; j++) {
+                if (i % interval == 0 || j % interval == 0) {
+                    _imageWriter.writePixel(j, i, color);
+                }
+            }
+        }
+        return this;
+    }
+
+
+    /**
+     * Delegates image writing to the image writer.
+     */
+    public void writeToImage(String fileName) {
+        _imageWriter.writeToImage(fileName);
     }
 }

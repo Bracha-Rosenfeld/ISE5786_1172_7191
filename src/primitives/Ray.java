@@ -1,5 +1,6 @@
 package primitives;
 
+import java.util.*;
 /**
  * Class Ray represents a semi-line in 3D space.
  * @author Dan Zilberstein
@@ -39,6 +40,31 @@ public final class Ray {
             return _origin;
         }
     }
+
+    /**
+     * Finds the closest point to the ray's origin from a given list of points.
+     * @param points list of points to check
+     * @return the closest point, or null if the list is null
+     */
+    public Point findClosestPoint(List<Point> points) {
+        if (points == null) {
+            return null;
+        }
+
+        Point closestPoint = null;
+        double minDistanceSq = Double.POSITIVE_INFINITY;
+
+        for (Point point : points) {
+            double distanceSq = point.distanceSquared(_origin);
+            if (distanceSq < minDistanceSq) {
+                minDistanceSq = distanceSq;
+                closestPoint = point;
+            }
+        }
+
+        return closestPoint;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
