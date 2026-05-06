@@ -15,6 +15,7 @@ class SimpleRayTracer extends RayTracerBase {
 
     /**
      * Constructs a simple ray tracer for the given scene.
+     *
      * @param scene the scene to render
      */
     SimpleRayTracer(Scene scene) {
@@ -41,6 +42,7 @@ class SimpleRayTracer extends RayTracerBase {
     /**
      * Calculates the color at a specific intersection point.
      * At this stage, it only returns the ambient light intensity.
+     *
      * @param point the intersection point
      * @return the calculated color
      */

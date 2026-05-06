@@ -10,20 +10,29 @@ import primitives.Color;
  */
 public final class Scene {
 
-    /** The name of the scene */
+    /**
+     * The name of the scene
+     */
     public final String name;
 
-    /** The background color of the scene, initialized to BLACK */
+    /**
+     * The background color of the scene, initialized to BLACK
+     */
     public Color background = Color.BLACK;
 
-    /** The ambient light of the scene, initialized to NONE */
+    /**
+     * The ambient light of the scene, initialized to NONE
+     */
     public AmbientLight ambientLight = AmbientLight.NONE;
 
-    /** The geometric objects in the scene, initialized to an empty collection */
+    /**
+     * The geometric objects in the scene, initialized to an empty collection
+     */
     public Geometries geometries = new Geometries();
 
     /**
      * Constructs a Scene with the given name.
+     *
      * @param name the name of the scene
      */
     public Scene(String name) {
@@ -32,6 +41,7 @@ public final class Scene {
 
     /**
      * Sets the background color of the scene.
+     *
      * @param background the background color
      * @return the Scene object itself for method chaining
      */
@@ -42,6 +52,7 @@ public final class Scene {
 
     /**
      * Sets the ambient light of the scene.
+     *
      * @param ambientLight the ambient light
      * @return the Scene object itself for method chaining
      */
@@ -52,6 +63,7 @@ public final class Scene {
 
     /**
      * Sets the geometric objects of the scene.
+     *
      * @param geometries the collection of geometries
      * @return the Scene object itself for method chaining
      */

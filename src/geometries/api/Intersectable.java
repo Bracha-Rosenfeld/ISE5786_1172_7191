@@ -3,6 +3,7 @@ package geometries.api;
 
 import primitives.Point;
 import primitives.Ray;
+
 import java.util.List;
 
 /**
@@ -14,6 +15,7 @@ public abstract class Intersectable {
 
     /**
      * Finds all intersection points between the geometry and a given ray.
+     *
      * @param ray the ray intersecting the geometry
      * @return a list of intersection points, or null if there are no intersections
      */

@@ -1,29 +1,40 @@
 package primitives;
 
 import java.util.*;
+
 /**
  * Class Ray represents a semi-line in 3D space.
+ *
  * @author Dan Zilberstein
  */
 public final class Ray {
-    private final Point  _origin;
+    private final Point _origin;
     private final Vector _direction;
 
     /**
      * Constructor to initialize Ray with an origin point and a direction vector.
+     *
      * @param origin    the starting point
      * @param direction the direction vector
      */
     public Ray(Point origin, Vector direction) {
-        _origin    = origin;
+        _origin = origin;
         _direction = direction.normalize();
     }
 
-    /** @return the origin point */
-    public Point origin() { return _origin; }
+    /**
+     * @return the origin point
+     */
+    public Point origin() {
+        return _origin;
+    }
 
-    /** @return the normalized direction vector */
-    public Vector direction() { return _direction; }
+    /**
+     * @return the normalized direction vector
+     */
+    public Vector direction() {
+        return _direction;
+    }
 
     /**
      * Calculates a point on the ray's line at a given distance from the ray's origin.
@@ -43,6 +54,7 @@ public final class Ray {
 
     /**
      * Finds the closest point to the ray's origin from a given list of points.
+     *
      * @param points list of points to check
      * @return the closest point, or null if the list is null
      */

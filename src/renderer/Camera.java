@@ -25,9 +25,13 @@ public class Camera implements Cloneable {
     private double _height;
     private double _distance;
 
-    /** Image writer for the camera */
+    /**
+     * Image writer for the camera
+     */
     private ImageWriter _imageWriter;
-    /** Ray tracer for the camera */
+    /**
+     * Ray tracer for the camera
+     */
     private RayTracerBase _rayTracer;
 
     // View plane resolution (defaulting to 1)
@@ -42,7 +46,8 @@ public class Camera implements Cloneable {
     /**
      * Private default constructor for Camera[cite: 46].
      */
-    private Camera() {}
+    private Camera() {
+    }
 
     /**
      * Static method to get a new Builder instance[cite: 47].
@@ -84,9 +89,11 @@ public class Camera implements Cloneable {
         private final Camera _camera = new Camera();
 
         private Point _target;
+
         /**
          * Sets the camera's location[cite: 55].
          * * @param location the camera's position
+         *
          * @return the builder instance
          */
         public Builder setLocation(Point location) {
@@ -97,6 +104,7 @@ public class Camera implements Cloneable {
         /**
          * Sets the camera's orientation using forward and up vectors[cite: 56].
          * * @param to direction vector towards the scene
+         *
          * @param up general up direction vector
          * @return the builder instance
          */
@@ -109,7 +117,8 @@ public class Camera implements Cloneable {
         /**
          * Sets the camera's orientation towards a target point[cite: 56].
          * * @param target the point the camera is looking at
-         * @param up     general up direction vector
+         *
+         * @param up general up direction vector
          * @return the builder instance
          */
         public Builder setDirection(Point target, Vector up) {
@@ -121,17 +130,19 @@ public class Camera implements Cloneable {
         /**
          * Sets the camera's orientation towards a target point with default Y-axis up[cite: 56].
          * * @param target the point the camera is looking at
+         *
          * @return the builder instance
          */
-         public Builder setDirection(Point target) {
+        public Builder setDirection(Point target) {
             this._target = target;
             _camera._vUp = new Vector(0, 1, 0);
             return this;
-         }
+        }
 
         /**
          * Sets the physical size of the view plane[cite: 57].
          * * @param width  physical width
+         *
          * @param height physical height
          * @return the builder instance
          */
@@ -144,6 +155,7 @@ public class Camera implements Cloneable {
         /**
          * Sets the distance between the camera and the view plane[cite: 57].
          * * @param distance the distance value
+         *
          * @return the builder instance
          */
         public Builder setVpDistance(double distance) {
@@ -154,6 +166,7 @@ public class Camera implements Cloneable {
         /**
          * Sets the resolution of the view plane[cite: 57].
          * * @param nX number of pixels in a row
+         *
          * @param nY number of pixels in a column
          * @return the builder instance
          */
@@ -166,6 +179,7 @@ public class Camera implements Cloneable {
         /**
          * Finalizes the camera construction with specific order of checks[cite: 65].
          * * @return a ready-to-use Camera object (cloned)
+         *
          * @throws MissingResourceException if mandatory data is missing
          * @throws IllegalArgumentException if data is invalid
          */
@@ -239,8 +253,9 @@ public class Camera implements Cloneable {
 
         /**
          * Sets the ray tracer for the camera.
+         *
          * @param scene the scene to render
-         * @param type the type of ray tracer to use
+         * @param type  the type of ray tracer to use
          * @return the builder itself
          */
         public Builder setRayTracer(Scene scene, RayTracerType type) {
@@ -252,8 +267,10 @@ public class Camera implements Cloneable {
             return this;
         }
     }
+
     /**
      * Renders the image by casting rays through all pixels.
+     *
      * @return the camera itself
      */
     public Camera renderImage() {

@@ -4,18 +4,23 @@ import geometries.api.RadialGeometry;
 import primitives.*;
 
 import java.util.List;
+
 import static primitives.Util.*; // <-- הוספנו ייבוא סטטי
 
 /**
  * Class Tube represents an infinite tube in 3D space, defined by a radius and an axis ray.
+ *
  * @author Dina Black and Bracha Rosenfeld
  */
 public class Tube extends RadialGeometry {
-    /** The axis ray of the tube */
+    /**
+     * The axis ray of the tube
+     */
     protected final Ray _axis;
 
     /**
      * Constructor to initialize a tube with a radius and an axis ray.
+     *
      * @param radius the radius value
      * @param axis   the axis ray
      */
@@ -78,10 +83,10 @@ public class Tube extends RadialGeometry {
                 b = alignZero(2 * vecA.dotProduct(vecB));
                 c = alignZero(vecB.lengthSquared() - _radius * _radius);
             } else {
-                c = alignZero(- _radius * _radius);
+                c = alignZero(-_radius * _radius);
             }
         } else {
-            c = alignZero(- _radius * _radius);
+            c = alignZero(-_radius * _radius);
         }
 
         // Calculate the discriminant: DELTA = b^2 - 4ac

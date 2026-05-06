@@ -9,11 +9,14 @@ import scene.Scene;
  */
 abstract class RayTracerBase {
 
-    /** The scene to be traced */
+    /**
+     * The scene to be traced
+     */
     protected final Scene _scene;
 
     /**
      * Constructs a ray tracer base with the given scene.
+     *
      * @param scene the scene to render
      */
     RayTracerBase(Scene scene) {
@@ -22,6 +25,7 @@ abstract class RayTracerBase {
 
     /**
      * Traces a ray and calculates the color at the intersection point.
+     *
      * @param ray the ray to trace
      * @return the calculated color
      */

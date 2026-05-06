@@ -5,17 +5,19 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Util;
 import primitives.Vector;
+
 import java.util.List;
 
 /**
  * Class Plane represents a plane in 3D space.
  */
 public final class Plane extends Geometry {
-    private final Point  _point;
+    private final Point _point;
     private final Vector _normal;
 
     /**
      * Constructor to initialize a plane from three points.
+     *
      * @param p1 first point
      * @param p2 second point
      * @param p3 third point
@@ -30,11 +32,12 @@ public final class Plane extends Geometry {
 
     /**
      * Constructor to initialize a plane from a point and a normal vector.
+     *
      * @param point  a point on the plane
      * @param normal the normal vector
      */
     public Plane(Point point, Vector normal) {
-        _point  = point;
+        _point = point;
         _normal = normal.normalize();
     }
 

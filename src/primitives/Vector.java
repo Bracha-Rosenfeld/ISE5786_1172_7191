@@ -5,16 +5,20 @@ import static primitives.Util.isZero;
 /**
  * Class Vector represents a direction and magnitude in 3D space.
  * It inherits from Point.
+ *
  * @author Dan Zilberstein
  */
 public class Vector extends Point {
-    /** Constants for the axis vectors */
+    /**
+     * Constants for the axis vectors
+     */
     public static final Vector AXIS_X = new Vector(1, 0, 0);
     public static final Vector AXIS_Y = new Vector(0, 1, 0);
     public static final Vector AXIS_Z = new Vector(0, 0, 1);
 
     /**
      * Constructor to initialize Vector based on three double values.
+     *
      * @param x coordinate
      * @param y coordinate
      * @param z coordinate
@@ -28,6 +32,7 @@ public class Vector extends Point {
 
     /**
      * Constructor to initialize Vector based on a Double3 object.
+     *
      * @param xyz Double3 value
      * @throws IllegalArgumentException if the vector is (0,0,0)
      */
@@ -39,6 +44,7 @@ public class Vector extends Point {
 
     /**
      * Scalar multiplication (scaling) of a vector.
+     *
      * @param rhs scaling factor
      * @return a new Vector scaled by rhs
      */
@@ -48,6 +54,7 @@ public class Vector extends Point {
 
     /**
      * Adds another vector to this vector.
+     *
      * @param other the vector to add
      * @return a new Vector representing the sum
      */
@@ -57,6 +64,7 @@ public class Vector extends Point {
 
     /**
      * Dot product between two vectors.
+     *
      * @param other the other vector
      * @return the scalar product
      */
@@ -68,6 +76,7 @@ public class Vector extends Point {
 
     /**
      * Cross product between two vectors.
+     *
      * @param other the other vector
      * @return a new Vector orthogonal to both
      */

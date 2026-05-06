@@ -4,18 +4,23 @@ import geometries.api.RadialGeometry;
 import primitives.*;
 
 import java.util.List;
+
 import static primitives.Util.alignZero;
 
 /**
  * Class Sphere represents a sphere in 3D space.
+ *
  * @author Dina Black and Bracha Rosenfeld
  */
 public final class Sphere extends RadialGeometry {
-    /** The center point of the sphere */
+    /**
+     * The center point of the sphere
+     */
     private final Point _center;
 
     /**
      * Constructor to initialize a sphere with a center point and a radius.
+     *
      * @param center the center point
      * @param radius the radius value
      */

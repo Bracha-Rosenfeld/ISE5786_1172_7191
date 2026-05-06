@@ -2,17 +2,23 @@ package primitives;
 
 /**
  * Class Point is the basic object representing a point with 3 coordinates in the 3D space.
+ *
  * @author Dan Zilberstein
  */
 public class Point {
-    /** The coordinates of the point */
+    /**
+     * The coordinates of the point
+     */
     protected final Double3 _xyz;
 
-    /** Zero point (0,0,0) */
+    /**
+     * Zero point (0,0,0)
+     */
     public static final Point ZERO = new Point(Double3.ZERO);
 
     /**
      * Constructor to initialize Point based on three double values.
+     *
      * @param x first number value
      * @param y second number value
      * @param z third number value
@@ -23,6 +29,7 @@ public class Point {
 
     /**
      * Constructor to initialize Point based on a Double3 object.
+     *
      * @param xyz Double3 value
      */
     public Point(Double3 xyz) {
@@ -47,6 +54,7 @@ public class Point {
 
     /**
      * Subtracts one point from another to create a vector.
+     *
      * @param other the point to subtract
      * @return a vector from the other point to this point
      */
@@ -56,6 +64,7 @@ public class Point {
 
     /**
      * Adds a vector to this point to create a new point.
+     *
      * @param vector the vector to add
      * @return a new point
      */
@@ -65,6 +74,7 @@ public class Point {
 
     /**
      * Calculates the squared distance between two points.
+     *
      * @param other the other point
      * @return the squared distance
      */
@@ -76,6 +86,7 @@ public class Point {
 
     /**
      * Calculates the distance between two points.
+     *
      * @param other the other point
      * @return the distance
      */

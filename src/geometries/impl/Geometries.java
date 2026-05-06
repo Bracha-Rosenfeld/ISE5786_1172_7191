@@ -14,7 +14,9 @@ import java.util.List;
  * Implements the Intersectable interface.
  */
 public final class Geometries extends Intersectable {
-    /** List of geometries in the collection */
+    /**
+     * List of geometries in the collection
+     */
     private final List<Intersectable> _geometries = new ArrayList<>();
 
     /**
@@ -25,6 +27,7 @@ public final class Geometries extends Intersectable {
 
     /**
      * Constructor that accepts a varying number of geometries.
+     *
      * @param geometries zero or more geometries to add to the collection
      */
     public Geometries(Intersectable... geometries) {
@@ -33,6 +36,7 @@ public final class Geometries extends Intersectable {
 
     /**
      * Adds zero or more geometries to the collection.
+     *
      * @param geometries the geometries to add
      */
     public void add(Intersectable... geometries) {

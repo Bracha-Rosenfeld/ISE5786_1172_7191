@@ -3,6 +3,7 @@ package geometries.impl;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
+
 import java.util.List;
 
 import static primitives.Util.alignZero;
@@ -13,7 +14,9 @@ import static primitives.Util.isZero;
  * The cylinder is defined by a radius, an axis ray, and a height.
  */
 public final class Cylinder extends Tube {
-    /** The height of the finite cylinder */
+    /**
+     * The height of the finite cylinder
+     */
     private final double _height;
 
     /**
