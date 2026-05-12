@@ -81,14 +81,15 @@ public class Polygon extends Geometry {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
         // 1. Intersect with the plane containing the polygon
         List<Point> planeIntersections = _plane.findIntersections(ray);
-
         // If the ray doesn't intersect the plane, it definitely doesn't intersect the polygon
         if (planeIntersections == null) {
             return null;
         }
+
+        Point point = planeIntersections.getFirst();
 
         Point p0 = ray.origin();
         Vector v = ray.direction();
@@ -122,7 +123,7 @@ public class Polygon extends Geometry {
         }
 
         // If we passed all checks, the point is strictly inside the polygon
-        return planeIntersections;
+        return List.of(new Intersection(this, point));
     }
 
     @Override

@@ -42,7 +42,7 @@ public final class Plane extends Geometry {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
         Point p0 = ray.origin();
         Vector v = ray.direction();
 
@@ -71,7 +71,8 @@ public final class Plane extends Geometry {
         }
 
         // Create the list strictly when an intersection is found
-        return List.of(ray.getPoint(t));
+        return List.of(new Intersection(this, ray.getPoint(t)));
+
     }
 
     @Override

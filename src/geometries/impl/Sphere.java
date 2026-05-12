@@ -30,7 +30,7 @@ public final class Sphere extends RadialGeometry {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
         Point p0 = ray.origin();
         Vector v = ray.direction();
 

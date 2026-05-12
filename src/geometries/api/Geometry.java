@@ -1,7 +1,7 @@
 package geometries.api;
 
-import primitives.Point;
-import primitives.Vector;
+import primitives.*;
+
 
 /**
  * Interface Geometry is the basic interface for all geometric objects
@@ -10,6 +10,24 @@ import primitives.Vector;
  * @author Dan Zilberstein
  */
 public abstract class Geometry extends Intersectable {
+    /** Emission light color */
+    private Color _emission = Color.BLACK;
+
+    /**
+     * Getter for emission color
+     * @return the emission color
+     */
+    public Color getEmission() { return _emission; }
+
+    /**
+     * Setter for emission color (Builder pattern)
+     * @param emission the emission color to set
+     * @return the geometry object itself
+     */
+    public Geometry setEmission(Color emission) {
+        _emission = emission;
+        return this;
+    }
     /**
      * Calculates the normal vector to the geometry at a given point.
      *

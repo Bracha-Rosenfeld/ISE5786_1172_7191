@@ -44,12 +44,12 @@ public final class Geometries extends Intersectable {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
-        List<Point> intersections = null;
+    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
+        List<Intersection> intersections = null;
 
         // Iterate over all geometries using delegation
         for (Intersectable geometry : _geometries) {
-            List<Point> geoIntersections = geometry.findIntersections(ray);
+            List<Intersection> geoIntersections = geometry.calcIntersections(ray);
 
             if (geoIntersections != null) {
                 // Lazy initialization: create the list only when the first intersection is found

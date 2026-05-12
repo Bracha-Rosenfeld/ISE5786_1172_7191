@@ -23,7 +23,7 @@ public final class Triangle extends Polygon {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
         // 1. Intersect with the plane containing the triangle
         List<Point> planeIntersections = _plane.findIntersections(ray);
 
@@ -63,7 +63,7 @@ public final class Triangle extends Polygon {
 
         // The point is inside the triangle strictly if all dot products have the SAME sign
         if ((vn1 > 0 && vn2 > 0 && vn3 > 0) || (vn1 < 0 && vn2 < 0 && vn3 < 0)) {
-            return planeIntersections; // Reusing the list from the plane - Excellent!
+            return planeIntersections; // Reusing the list from the plane
         }
 
         // Otherwise, it's outside
