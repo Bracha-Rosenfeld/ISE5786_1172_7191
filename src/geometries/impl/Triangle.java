@@ -63,7 +63,8 @@ public final class Triangle extends Polygon {
 
         // The point is inside the triangle strictly if all dot products have the SAME sign
         if ((vn1 > 0 && vn2 > 0 && vn3 > 0) || (vn1 < 0 && vn2 < 0 && vn3 < 0)) {
-            return planeIntersections; // Reusing the list from the plane
+            Point point = planeIntersections.getFirst();
+            return List.of(new Intersection(this, point));
         }
 
         // Otherwise, it's outside

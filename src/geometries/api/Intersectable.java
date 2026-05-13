@@ -1,5 +1,6 @@
 package geometries.api;
 
+import primitives.Material;
 import primitives.Point;
 import primitives.Ray;
 
@@ -14,11 +15,22 @@ public abstract class Intersectable {
     /**
      * Passive Data Structure representing an intersection point with its specific geometry.
      */
+    /**
+     * Passive Data Structure representing an intersection point with its specific geometry.
+     */
     public static class Intersection {
-        /** The geometry that was intersected */
+        /**
+         * The geometry that was intersected
+         */
         public final Geometry geometry;
-        /** The point of intersection */
+        /**
+         * The point of intersection
+         */
         public final Point point;
+        /**
+         * The material of the intersected geometry
+         */
+        public final Material material; // הוספנו את שדה החומר
 
         /**
          * Constructs an Intersection object.
@@ -29,6 +41,7 @@ public abstract class Intersectable {
         public Intersection(Geometry geometry, Point point) {
             this.geometry = geometry;
             this.point = point;
+            this.material = geometry == null ? new Material() : geometry.getMaterial();
         }
 
         @Override

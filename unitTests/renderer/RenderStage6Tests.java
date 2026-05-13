@@ -11,11 +11,9 @@ import org.junit.jupiter.api.Test;
 import geometries.impl.Sphere;
 import geometries.impl.Triangle;
 import lighting.AmbientLight;
-import primitives.Color;
-import primitives.Point;
-import primitives.Vector;
+import primitives.*;
 import scene.Scene;
-
+import scene.SceneXmlParser;
 /**
  * Test rendering a basic image
  * @author Dan
@@ -118,15 +116,33 @@ class RenderStage6Tests {
     * bodies and render it into a png image with a grid
     */
    @Test
-   @Disabled("To be updated and enabled by students")
    void testRenderAmbientColor() {
-      Scene scene = new Scene("Ambient colors"); // TODO by students
+      Scene scene = new Scene("Ambient colors")
+              .setAmbientLight(new AmbientLight(new Color(WHITE))); // רק הצבע הלבן, בלי הפרמטר השני
+
       scene.geometries //
-         .add(_sphere, // TODO by students
-              _triangleLeftTop, // TODO by students
-              _triangleLeftBottom, // TODO by students
-              _triangleRightBottom // TODO by students
-         );
+              .add(_sphere.setMaterial(new Material().setKa(0.4)),
+                      _triangleLeftTop.setEmission(new Color(GREEN))
+                              .setMaterial(new Material().setKa(new Double3(0, 0.8, 0))),
+                      _triangleLeftBottom.setEmission(new Color(RED))
+                              .setMaterial(new Material().setKa(new Double3(0.8, 0, 0))),
+                      _triangleRightBottom.setEmission(new Color(BLUE))
+                              .setMaterial(new Material().setKa(new Double3(0, 0, 0.8)))
+              );
       createImage(scene, "ambient render test");
    }
+
+   @Test
+   void testRenderEmissionColorXML() {
+      Scene scene = SceneXmlParser.parse("Emission color XML", "xml/emissionRenderTest.xml");
+      createImage(scene, "emission render test XML");
+   }
+
+   @Test
+   void testRenderAmbientColorXML() {
+      Scene scene = SceneXmlParser.parse("Ambient colors XML", "xml/ambientRenderTest.xml");
+      createImage(scene, "ambient render test XML");
+   }
 }
+
+

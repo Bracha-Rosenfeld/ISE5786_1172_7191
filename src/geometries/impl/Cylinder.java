@@ -53,7 +53,7 @@ public final class Cylinder extends Tube {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
         Point pr0 = ray.origin();
         Vector v = ray.direction();
         Vector va = _axis.direction();
@@ -69,9 +69,10 @@ public final class Cylinder extends Tube {
         Point p2 = null;
 
         // 1. Intersect with the infinite tube (envelope)
-        List<Point> tubePoints = super.findIntersections(ray);
-        if (tubePoints != null) {
-            for (Point p : tubePoints) {
+        List<Intersection> tubeIntersections = super.calcIntersectionsHelper(ray);
+        if (tubeIntersections != null) {
+            for (Intersection inter : tubeIntersections) {
+                Point p = inter.point;
                 double t = 0;
                 if (!p.equals(p0)) {
                     t = alignZero(va.dotProduct(p.subtract(p0)));
@@ -116,11 +117,11 @@ public final class Cylinder extends Tube {
 
         // 3. Sort and return results without unnecessary allocations
         if (p1 == null) return null;
-        if (p2 == null) return List.of(p1);
+        if (p2 == null) return List.of(new Intersection(this, p1));
 
         if (alignZero(p1.distanceSquared(pr0) - p2.distanceSquared(pr0)) > 0) {
-            return List.of(p2, p1);
+            return List.of(new Intersection(this, p2), new Intersection(this, p1));
         }
-        return List.of(p1, p2);
+        return List.of(new Intersection(this, p1), new Intersection(this, p2));
     }
 }

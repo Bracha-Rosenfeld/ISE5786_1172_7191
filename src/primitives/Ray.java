@@ -2,6 +2,8 @@ package primitives;
 
 import java.util.*;
 
+import geometries.api.Intersectable.Intersection;
+
 /**
  * Class Ray represents a semi-line in 3D space.
  *
@@ -52,29 +54,46 @@ public final class Ray {
         }
     }
 
+
     /**
-     * Finds the closest point to the ray's origin from a given list of points.
+     * Finds the closest intersection to the ray's origin from a given list of intersections.
      *
-     * @param points list of points to check
-     * @return the closest point, or null if the list is null
+     * @param intersections list of intersections to check
+     * @return the closest intersection, or null if the list is null or empty
      */
-    public Point findClosestPoint(List<Point> points) {
-        if (points == null) {
+    public Intersection findClosestIntersection(List<Intersection> intersections) {
+        if (intersections == null || intersections.isEmpty()) {
             return null;
         }
 
-        Point closestPoint = null;
+        Intersection closest = null;
         double minDistanceSq = Double.POSITIVE_INFINITY;
 
-        for (Point point : points) {
-            double distanceSq = point.distanceSquared(_origin);
+        for (Intersection intersection : intersections) {
+            // Check distance from ray origin to the intersection point
+            double distanceSq = intersection.point.distanceSquared(_origin);
             if (distanceSq < minDistanceSq) {
                 minDistanceSq = distanceSq;
-                closestPoint = point;
+                closest = intersection;
             }
         }
 
-        return closestPoint;
+        return closest;
+    }
+
+
+    /**
+     * Finds the closest point to the ray's origin from a given list of points.
+     * Uses findClosestIntersection to maintain DRY principle.
+     *
+     * @param points list of points to check
+     * @return the closest point, or null if the list is null or empty
+     */
+    public Point findClosestPoint(List<Point> points) {
+        return points == null ? null
+                : findClosestIntersection(points.stream()
+                .map(point -> new Intersection(null, point))
+                .toList()).point;
     }
 
     @Override

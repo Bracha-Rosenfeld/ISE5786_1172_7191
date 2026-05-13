@@ -1,10 +1,13 @@
 package scene;
 
+import geometries.api.Geometry;
 import lighting.AmbientLight;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import primitives.Color;
+import primitives.Double3;
+import primitives.Material;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -59,19 +62,35 @@ public class SceneXmlParser {
                         Element shape = (Element) shapes.item(i);
                         String shapeType = shape.getTagName();
 
+                        Geometry geom = null;
+
                         switch (shapeType) {
                             case "sphere":
                                 primitives.Point center = parsePoint(shape.getAttribute("center"));
                                 double radius = Double.parseDouble(shape.getAttribute("radius"));
-                                scene.geometries.add(new geometries.impl.Sphere(center, radius));
+                                geom = new geometries.impl.Sphere(center, radius);
                                 break;
 
                             case "triangle":
                                 primitives.Point p0 = parsePoint(shape.getAttribute("p0"));
                                 primitives.Point p1 = parsePoint(shape.getAttribute("p1"));
                                 primitives.Point p2 = parsePoint(shape.getAttribute("p2"));
-                                scene.geometries.add(new geometries.impl.Triangle(p0, p1, p2));
+                                geom = new geometries.impl.Triangle(p0, p1, p2);
                                 break;
+                        }
+
+                        if (geom != null) {
+                            String emissionStr = shape.getAttribute("emission");
+                            if (!emissionStr.isEmpty()) {
+                                geom.setEmission(parseColor(emissionStr));
+                            }
+
+                            String kAStr = shape.getAttribute("kA");
+                            if (!kAStr.isEmpty()) {
+                                geom.setMaterial(new Material().setKa(parseDouble3(kAStr)));
+                            }
+
+                            scene.geometries.add(geom);
                         }
                     }
                 }
@@ -86,9 +105,6 @@ public class SceneXmlParser {
 
     /**
      * Helper method to parse a space-separated RGB string into a Color object.
-     *
-     * @param colorStr the RGB string (e.g., "255 191 191")
-     * @return the Color object
      */
     private static Color parseColor(String colorStr) {
         String[] parts = colorStr.split("\\s+");
@@ -101,9 +117,6 @@ public class SceneXmlParser {
 
     /**
      * Helper method to parse a space-separated string into a Point object.
-     *
-     * @param pointStr the coordinate string (e.g., "0 0 -100")
-     * @return the Point object
      */
     private static primitives.Point parsePoint(String pointStr) {
         String[] parts = pointStr.split("\\s+");
@@ -112,5 +125,23 @@ public class SceneXmlParser {
                 Double.parseDouble(parts[1]),
                 Double.parseDouble(parts[2])
         );
+    }
+
+    /**
+     * Helper method to parse a space-separated string into a Double3 object.
+     * Supports both a single value (e.g., "0.4") and three values (e.g., "0 0.8 0").
+     */
+    private static Double3 parseDouble3(String str) {
+        String[] parts = str.trim().split("\\s+");
+        if (parts.length == 1) {
+            return new Double3(Double.parseDouble(parts[0]));
+        } else if (parts.length == 3) {
+            return new Double3(
+                    Double.parseDouble(parts[0]),
+                    Double.parseDouble(parts[1]),
+                    Double.parseDouble(parts[2])
+            );
+        }
+        throw new IllegalArgumentException("Invalid Double3 format: " + str);
     }
 }
