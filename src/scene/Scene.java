@@ -2,7 +2,11 @@ package scene;
 
 import geometries.impl.Geometries;
 import lighting.AmbientLight;
+import lighting.LightSource;
 import primitives.Color;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Represents a scene to be rendered.
@@ -15,6 +19,8 @@ public final class Scene {
      */
     public final String name;
 
+    /** List of external light sources in the scene */
+    public List<LightSource> lights = new LinkedList<>();
     /**
      * The background color of the scene, initialized to BLACK
      */

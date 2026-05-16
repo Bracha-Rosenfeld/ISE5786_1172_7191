@@ -3,6 +3,7 @@ package geometries.api;
 import primitives.Material;
 import primitives.Point;
 import primitives.Ray;
+import primitives.Vector;
 
 import java.util.List;
 
@@ -30,8 +31,14 @@ public abstract class Intersectable {
         /**
          * The material of the intersected geometry
          */
-        public final Material material; // הוספנו את שדה החומר
+        public final Material material;
 
+        // --- Cache fields for shading calculations ---
+        public Vector n;
+        public Vector v;
+        public double nv;
+        public Vector l;
+        public double nl;
         /**
          * Constructs an Intersection object.
          *
