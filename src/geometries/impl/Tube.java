@@ -5,7 +5,7 @@ import primitives.*;
 
 import java.util.List;
 
-import static primitives.Util.*; // <-- הוספנו ייבוא סטטי
+import static primitives.Util.*;
 
 /**
  * Class Tube represents an infinite tube in 3D space, defined by a radius and an axis ray.
@@ -36,26 +36,23 @@ public class Tube extends RadialGeometry {
         Vector p0ToPoint = point.subtract(p0);
         double t = v.dotProduct(p0ToPoint);
 
-        // שימוש ב-isZero נקי
         Point o = isZero(t) ? p0 : p0.add(v.scale(t));
         return point.subtract(o).normalize();
     }
 
     @Override
-    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
         Vector v = ray.direction();
         Vector va = _axis.direction();
         Point p0 = ray.origin();
         Point pa = _axis.origin();
 
-        // Calculate v - (v * va) * va
         double vDotVa = alignZero(v.dotProduct(va));
         Vector vecA = null;
         try {
             Vector vMinusVaScale = isZero(vDotVa) ? v : v.subtract(va.scale(vDotVa));
             vecA = vMinusVaScale;
         } catch (IllegalArgumentException e) {
-            // v is parallel to va. If the ray is parallel to the tube axis, there are no intersections.
             return null;
         }
 
@@ -89,10 +86,8 @@ public class Tube extends RadialGeometry {
             c = alignZero(-_radius * _radius);
         }
 
-        // Calculate the discriminant: DELTA = b^2 - 4ac
         double discriminant = alignZero(b * b - 4 * a * c);
 
-        // If discriminant <= 0, there are no intersections (tangents return null per requirements)
         if (discriminant <= 0) {
             return null;
         }
@@ -101,14 +96,18 @@ public class Tube extends RadialGeometry {
         double t1 = alignZero((-b - sqrtDiscriminant) / (2 * a));
         double t2 = alignZero((-b + sqrtDiscriminant) / (2 * a));
 
-        if (t1 > 0 && t2 > 0) {
+        // בודקים גם שהמרחק חיובי וגם שהוא קטן או שווה למרחק המקסימלי
+        boolean t1Valid = t1 > 0 && alignZero(t1 - maxDistance) <= 0;
+        boolean t2Valid = t2 > 0 && alignZero(t2 - maxDistance) <= 0;
+
+        if (t1Valid && t2Valid) {
             return List.of(new Intersection(this, ray.getPoint(t1)),
                     new Intersection(this, ray.getPoint(t2)));
         }
-        if (t1 > 0) {
+        if (t1Valid) {
             return List.of(new Intersection(this, ray.getPoint(t1)));
         }
-        if (t2 > 0) {
+        if (t2Valid) {
             return List.of(new Intersection(this, ray.getPoint(t2)));
         }
 

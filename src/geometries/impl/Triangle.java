@@ -23,11 +23,11 @@ public final class Triangle extends Polygon {
     }
 
     @Override
-    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
-        // 1. Intersect with the plane containing the triangle
-        List<Point> planeIntersections = _plane.findIntersections(ray);
+    protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
+        // 1. Intersect with the plane containing the triangle with maxDistance
+        List<Intersection> planeIntersections = _plane.calcIntersections(ray, maxDistance);
 
-        // If the ray doesn't intersect the plane, it definitely doesn't intersect the triangle
+        // If the ray doesn't intersect the plane (or it's too far), return null
         if (planeIntersections == null) {
             return null;
         }
@@ -63,7 +63,8 @@ public final class Triangle extends Polygon {
 
         // The point is inside the triangle strictly if all dot products have the SAME sign
         if ((vn1 > 0 && vn2 > 0 && vn3 > 0) || (vn1 < 0 && vn2 < 0 && vn3 < 0)) {
-            Point point = planeIntersections.getFirst();
+            // Extract the point from the plane intersection
+            Point point = planeIntersections.getFirst().point;
             return List.of(new Intersection(this, point));
         }
 

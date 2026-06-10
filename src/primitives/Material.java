@@ -4,10 +4,18 @@ package primitives;
  * Passive Data Structure (PDS) representing the material properties of a geometry.
  */
 public class Material {
-    /**
-     * Ambient light attenuation factor
-     */
+    /** Ambient light attenuation factor */
     public Double3 kA = Double3.ONE;
+    /** Diffuse attenuation factor */
+    public Double3 kD = Double3.ZERO;
+    /** Specular attenuation factor */
+    public Double3 kS = Double3.ZERO;
+    /** Transparency attenuation factor */
+    public Double3 kT = Double3.ZERO;
+    /** Reflection attenuation factor */
+    public Double3 kR = Double3.ZERO;
+    /** Shininess factor (determines the size of the specular highlight) */
+    public int nShininess = 0;
 
     /**
      * Sets the ambient attenuation factor kA using a Double3 value.
@@ -30,12 +38,6 @@ public class Material {
         this.kA = new Double3(kA);
         return this;
     }
-    /** Diffuse attenuation factor */
-    public Double3 kD = Double3.ZERO;
-    /** Specular attenuation factor */
-    public Double3 kS = Double3.ZERO;
-    /** Shininess factor (determines the size of the specular highlight) */
-    public int nShininess = 0;
 
     /**
      * Sets the diffuse attenuation factor.
@@ -74,6 +76,46 @@ public class Material {
      */
     public Material setKS(double kS) {
         this.kS = new Double3(kS);
+        return this;
+    }
+
+    /**
+     * Sets the transparency attenuation factor.
+     * @param kT the transparency factor as a Double3
+     * @return the Material object itself for method chaining
+     */
+    public Material setKT(Double3 kT) {
+        this.kT = kT;
+        return this;
+    }
+
+    /**
+     * Sets the transparency attenuation factor.
+     * @param kT the transparency factor as a scalar double
+     * @return the Material object itself for method chaining
+     */
+    public Material setKT(double kT) {
+        this.kT = new Double3(kT);
+        return this;
+    }
+
+    /**
+     * Sets the reflection attenuation factor.
+     * @param kR the reflection factor as a Double3
+     * @return the Material object itself for method chaining
+     */
+    public Material setKR(Double3 kR) {
+        this.kR = kR;
+        return this;
+    }
+
+    /**
+     * Sets the reflection attenuation factor.
+     * @param kR the reflection factor as a scalar double
+     * @return the Material object itself for method chaining
+     */
+    public Material setKR(double kR) {
+        this.kR = new Double3(kR);
         return this;
     }
 

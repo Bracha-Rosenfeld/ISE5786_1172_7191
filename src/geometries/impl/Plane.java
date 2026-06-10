@@ -42,7 +42,7 @@ public final class Plane extends Geometry {
     }
 
     @Override
-    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
         Point p0 = ray.origin();
         Vector v = ray.direction();
 
@@ -66,13 +66,13 @@ public final class Plane extends Geometry {
 
         // We only return points strictly in the ray's direction (t > 0).
         // The origin point itself is not included.
-        if (t <= 0) {
+        // We also check that t is within the maxDistance limit.
+        if (t <= 0 || Util.alignZero(t - maxDistance) > 0) {
             return null;
         }
 
         // Create the list strictly when an intersection is found
         return List.of(new Intersection(this, ray.getPoint(t)));
-
     }
 
     @Override

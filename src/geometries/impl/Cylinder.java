@@ -53,7 +53,7 @@ public final class Cylinder extends Tube {
     }
 
     @Override
-    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
         Point pr0 = ray.origin();
         Vector v = ray.direction();
         Vector va = _axis.direction();
@@ -68,8 +68,8 @@ public final class Cylinder extends Tube {
         Point p1 = null;
         Point p2 = null;
 
-        // 1. Intersect with the infinite tube (envelope)
-        List<Intersection> tubeIntersections = super.calcIntersectionsHelper(ray);
+        // 1. Intersect with the infinite tube (envelope) - העברת המרחק למחלקת האב
+        List<Intersection> tubeIntersections = super.calcIntersectionsHelper(ray, maxDistance);
         if (tubeIntersections != null) {
             for (Intersection inter : tubeIntersections) {
                 Point p = inter.point;
@@ -90,7 +90,8 @@ public final class Cylinder extends Tube {
             // Bottom base
             if (!pr0.equals(p0)) {
                 double tB = alignZero(va.dotProduct(p0.subtract(pr0)) / nv);
-                if (tB > 0) {
+                // בדיקה שהמרחק קטן או שווה למרחק המקסימלי
+                if (tB > 0 && alignZero(tB - maxDistance) <= 0) {
                     Point pB = ray.getPoint(tB);
                     double dSqB = alignZero(pB.distanceSquared(p0) - _radius * _radius);
                     // Accept if strictly inside the base (< 0) or exactly on the corner (== 0) only if not parallel
@@ -104,7 +105,8 @@ public final class Cylinder extends Tube {
             // Top base
             if (!pr0.equals(pTop)) {
                 double tT = alignZero(va.dotProduct(pTop.subtract(pr0)) / nv);
-                if (tT > 0) {
+                // בדיקה שהמרחק קטן או שווה למרחק המקסימלי
+                if (tT > 0 && alignZero(tT - maxDistance) <= 0) {
                     Point pT = ray.getPoint(tT);
                     double dSqT = alignZero(pT.distanceSquared(pTop) - _radius * _radius);
                     if (dSqT < 0 || (dSqT == 0 && !isParallel)) {

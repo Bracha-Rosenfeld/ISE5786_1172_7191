@@ -1,4 +1,3 @@
-
 package geometries.impl;
 
 import geometries.api.Intersectable;
@@ -44,12 +43,13 @@ public final class Geometries extends Intersectable {
     }
 
     @Override
-    protected List<Intersection> calcIntersectionsHelper(Ray ray) {
+    protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
         List<Intersection> intersections = null;
 
         // Iterate over all geometries using delegation
         for (Intersectable geometry : _geometries) {
-            List<Intersection> geoIntersections = geometry.calcIntersections(ray);
+            // מעבירים את המרחק המקסימלי לכל צורה באוסף
+            List<Intersection> geoIntersections = geometry.calcIntersections(ray, maxDistance);
 
             if (geoIntersections != null) {
                 // Lazy initialization: create the list only when the first intersection is found

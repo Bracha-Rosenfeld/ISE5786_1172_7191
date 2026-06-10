@@ -16,21 +16,12 @@ public abstract class Intersectable {
     /**
      * Passive Data Structure representing an intersection point with its specific geometry.
      */
-    /**
-     * Passive Data Structure representing an intersection point with its specific geometry.
-     */
     public static class Intersection {
-        /**
-         * The geometry that was intersected
-         */
+        /** The geometry that was intersected */
         public final Geometry geometry;
-        /**
-         * The point of intersection
-         */
+        /** The point of intersection */
         public final Point point;
-        /**
-         * The material of the intersected geometry
-         */
+        /** The material of the intersected geometry */
         public final Material material;
 
         // --- Cache fields for shading calculations ---
@@ -39,6 +30,7 @@ public abstract class Intersectable {
         public double nv;
         public Vector l;
         public double nl;
+
         /**
          * Constructs an Intersection object.
          *
@@ -66,23 +58,35 @@ public abstract class Intersectable {
     }
 
     /**
-     * Finds all intersections between the geometry and a given ray.
-     * This method implements the NVI pattern by calling the protected helper method.
+     * Finds all intersections between the geometry and a given ray (no distance limit).
      *
      * @param ray the ray intersecting the geometry
      * @return a list of intersections, or null if there are no intersections
      */
     public final List<Intersection> calcIntersections(Ray ray) {
-        return calcIntersectionsHelper(ray);
+        return calcIntersections(ray, Double.POSITIVE_INFINITY);
+    }
+
+    /**
+     * Finds all intersections between the geometry and a given ray, up to a maximum distance.
+     * This method implements the NVI pattern by calling the protected helper method.
+     *
+     * @param ray         the ray intersecting the geometry
+     * @param maxDistance the maximum distance for a valid intersection
+     * @return a list of intersections, or null if there are no intersections
+     */
+    public final List<Intersection> calcIntersections(Ray ray, double maxDistance) {
+        return calcIntersectionsHelper(ray, maxDistance);
     }
 
     /**
      * Helper method to calculate intersections, to be implemented by subclasses.
      *
-     * @param ray the ray intersecting the geometry
+     * @param ray         the ray intersecting the geometry
+     * @param maxDistance the maximum distance for a valid intersection
      * @return a list of intersections, or null if there are no intersections
      */
-    protected abstract List<Intersection> calcIntersectionsHelper(Ray ray);
+    protected abstract List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance);
 
     /**
      * Finds all intersection points between the geometry and a given ray.
