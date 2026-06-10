@@ -4,7 +4,9 @@ import primitives.Util.*;
 import primitives.*;
 import scene.Scene;
 
+import java.util.LinkedList;
 import java.util.MissingResourceException;
+import java.util.stream.IntStream;
 
 import static primitives.Util.isZero;
 
@@ -14,24 +16,20 @@ import static primitives.Util.isZero;
  * * @author Project Assistant
  */
 public class Camera implements Cloneable {
-    // Camera location and orientation vectors [cite: 42]
+    // Camera location and orientation vectors
     private Point _p0;
     private Vector _vTo;
     private Vector _vUp;
     private Vector _vRight;
 
-    // View plane physical dimensions and distance [cite: 42]
+    // View plane physical dimensions and distance
     private double _width;
     private double _height;
     private double _distance;
 
-    /**
-     * Image writer for the camera
-     */
+    /** Image writer for the camera */
     private ImageWriter _imageWriter;
-    /**
-     * Ray tracer for the camera
-     */
+    /** Ray tracer for the camera */
     private RayTracerBase _rayTracer;
 
     // View plane resolution (defaulting to 1)
@@ -43,14 +41,23 @@ public class Camera implements Cloneable {
     private double _pixelWidth;
     private double _pixelHeight;
 
+    /** Amount of threads to use for rendering image by the camera */
+    private int threadsCount = 0;
+    /** Amount of threads to spare for Java VM threads */
+    private static final int SPARE_THREADS = 2;
+    /** Debug print interval in seconds (for progress percentage) */
+    private double printInterval = 0;
+    /** Pixel manager for supporting multi-threading and debug print */
+    private PixelManager pixelManager;
+
     /**
-     * Private default constructor for Camera[cite: 46].
+     * Private default constructor for Camera.
      */
     private Camera() {
     }
 
     /**
-     * Static method to get a new Builder instance[cite: 47].
+     * Static method to get a new Builder instance.
      * * @return a new Builder instance
      */
     public static Builder getBuilder() {
@@ -82,16 +89,16 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Builder class for creating Camera objects using the Builder pattern[cite: 38].
+     * Builder class for creating Camera objects using the Builder pattern.
      */
     public static class Builder {
-        // Final camera object to be populated [cite: 54]
+        // Final camera object to be populated
         private final Camera _camera = new Camera();
 
         private Point _target;
 
         /**
-         * Sets the camera's location[cite: 55].
+         * Sets the camera's location.
          * * @param location the camera's position
          *
          * @return the builder instance
@@ -102,7 +109,7 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the camera's orientation using forward and up vectors[cite: 56].
+         * Sets the camera's orientation using forward and up vectors.
          * * @param to direction vector towards the scene
          *
          * @param up general up direction vector
@@ -115,7 +122,7 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the camera's orientation towards a target point[cite: 56].
+         * Sets the camera's orientation towards a target point.
          * * @param target the point the camera is looking at
          *
          * @param up general up direction vector
@@ -128,7 +135,7 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the camera's orientation towards a target point with default Y-axis up[cite: 56].
+         * Sets the camera's orientation towards a target point with default Y-axis up.
          * * @param target the point the camera is looking at
          *
          * @return the builder instance
@@ -140,7 +147,7 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the physical size of the view plane[cite: 57].
+         * Sets the physical size of the view plane.
          * * @param width  physical width
          *
          * @param height physical height
@@ -153,7 +160,7 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the distance between the camera and the view plane[cite: 57].
+         * Sets the distance between the camera and the view plane.
          * * @param distance the distance value
          *
          * @return the builder instance
@@ -164,7 +171,7 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the resolution of the view plane[cite: 57].
+         * Sets the resolution of the view plane.
          * * @param nX number of pixels in a row
          *
          * @param nY number of pixels in a column
@@ -177,7 +184,56 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Finalizes the camera construction with specific order of checks[cite: 65].
+         * Set multi-threading
+         * @param threads number of threads.
+         * -2 means number of logical processors less SPARE_THREADS.
+         * -1 means stream processing parallelization.
+         * 0 means multi-threading is not activated.
+         * 1 and more means literally number of threads.
+         * @return builder object itself
+         */
+        public Builder setMultithreading(int threads) {
+            if (threads < -2)
+                throw new IllegalArgumentException("Multithreading parameter must be -2 or higher");
+            if (threads == -2) {
+                int cores = Runtime.getRuntime().availableProcessors() - SPARE_THREADS;
+                _camera.threadsCount = cores <= 2 ? 1 : cores;
+            } else {
+                _camera.threadsCount = threads;
+            }
+            return this;
+        }
+
+        /**
+         * Set debug printing interval.
+         * @param interval printing interval in seconds. If it's zero there won't be printing at all.
+         * @return builder object itself
+         */
+        public Builder setDebugPrint(double interval) {
+            if (interval < 0)
+                throw new IllegalArgumentException("interval parameter must be non-negative");
+            _camera.printInterval = interval;
+            return this;
+        }
+
+        /**
+         * Sets the ray tracer for the camera.
+         *
+         * @param scene the scene to render
+         * @param type  the type of ray tracer to use
+         * @return the builder itself
+         */
+        public Builder setRayTracer(Scene scene, RayTracerType type) {
+            if (type == RayTracerType.SIMPLE) {
+                _camera._rayTracer = new SimpleRayTracer(scene);
+            } else {
+                throw new IllegalArgumentException("Unsupported ray tracer type");
+            }
+            return this;
+        }
+
+        /**
+         * Finalizes the camera construction with specific order of checks.
          * * @return a ready-to-use Camera object (cloned)
          *
          * @throws MissingResourceException if mandatory data is missing
@@ -189,7 +245,7 @@ public class Camera implements Cloneable {
             checkLocationAndDirection();
             checkViewPlane();
             // Ensure resolution was set and create ImageWriter
-            if (_camera._width == 0 || _camera._height == 0) // ודאי שאלו שמות השדות אצלך לרזולוציה
+            if (_camera._width == 0 || _camera._height == 0)
                 throw new MissingResourceException("Missing resolution data", "Camera", "resolution");
             _camera._imageWriter = new ImageWriter(_camera._nX, _camera._nY);
             // If rayTracer was not provided, set a default one
@@ -205,7 +261,7 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Validates that resolution values are positive[cite: 74].
+         * Validates that resolution values are positive.
          */
         private void checkResolution() {
             if (_camera._nX <= 0 || _camera._nY <= 0)
@@ -213,7 +269,7 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Validates location and orientation, and computes vRight[cite: 76, 78].
+         * Validates location and orientation, and computes vRight.
          */
         private void checkLocationAndDirection() {
             if (_camera._p0 == null)
@@ -238,7 +294,7 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Validates view plane dimensions and distance, and computes helper fields[cite: 78, 85].
+         * Validates view plane dimensions and distance, and computes helper fields.
          */
         private void checkViewPlane() {
             if (_camera._width <= 0 || _camera._height <= 0)
@@ -250,22 +306,6 @@ public class Camera implements Cloneable {
             _camera._pixelWidth = _camera._width / _camera._nX;
             _camera._pixelHeight = _camera._height / _camera._nY;
         }
-
-        /**
-         * Sets the ray tracer for the camera.
-         *
-         * @param scene the scene to render
-         * @param type  the type of ray tracer to use
-         * @return the builder itself
-         */
-        public Builder setRayTracer(Scene scene, RayTracerType type) {
-            if (type == RayTracerType.SIMPLE) {
-                _camera._rayTracer = new SimpleRayTracer(scene);
-            } else {
-                throw new IllegalArgumentException("Unsupported ray tracer type");
-            }
-            return this;
-        }
     }
 
     /**
@@ -274,11 +314,58 @@ public class Camera implements Cloneable {
      * @return the camera itself
      */
     public Camera renderImage() {
-        for (int i = 0; i < _nY; i++) {
-            for (int j = 0; j < _nX; j++) {
+        pixelManager = new PixelManager(_nY, _nX, printInterval);
+        return switch (threadsCount) {
+            case 0 -> renderImageNoThreads();
+            case -1 -> renderImageStream();
+            default -> renderImageRawThreads();
+        };
+    }
+
+    /**
+     * Render image without multi-threading
+     * @return the camera object itself
+     */
+    private Camera renderImageNoThreads() {
+        for (int i = 0; i < _nY; ++i) {
+            for (int j = 0; j < _nX; ++j) {
                 castRay(_nX, _nY, j, i);
             }
         }
+        return this;
+    }
+
+    /**
+     * Render image using multi-threading by parallel streaming
+     * @return the camera object itself
+     */
+    private Camera renderImageStream() {
+        IntStream.range(0, _nY).parallel()
+                .forEach(i -> IntStream.range(0, _nX).parallel()
+                        .forEach(j -> castRay(_nX, _nY, j, i)));
+        return this;
+    }
+
+    /**
+     * Render image using multi-threading by creating and running raw threads
+     * @return the camera object itself
+     */
+    private Camera renderImageRawThreads() {
+        var threads = new LinkedList<Thread>();
+        int threadsToRun = threadsCount;
+        while (threadsToRun-- > 0) {
+            threads.add(new Thread(() -> {
+                PixelManager.Pixel pixel;
+                while ((pixel = pixelManager.nextPixel()) != null) {
+                    castRay(_nX, _nY, pixel.col(), pixel.row());
+                }
+            }));
+        }
+        for (var thread : threads) thread.start();
+        try {
+            for (var thread : threads) thread.join();
+        } catch (InterruptedException ignored) {}
+
         return this;
     }
 
@@ -289,6 +376,7 @@ public class Camera implements Cloneable {
         Ray ray = constructRay(j, i);
         Color color = _rayTracer.traceRay(ray);
         _imageWriter.writePixel(j, i, color);
+        pixelManager.pixelDone(); // חובה לדווח למנהל הפיקסלים על סיום העבודה
     }
 
     /**
@@ -304,7 +392,6 @@ public class Camera implements Cloneable {
         }
         return this;
     }
-
 
     /**
      * Delegates image writing to the image writer.
