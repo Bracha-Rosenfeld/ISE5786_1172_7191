@@ -5,15 +5,17 @@ import primitives.*;
 import scene.Scene;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.MissingResourceException;
 import java.util.stream.IntStream;
 
 import static primitives.Util.isZero;
+import static primitives.Util.alignZero;
 
 /**
  * Camera class representing a point of view in the 3D scene.
  * It handles the creation of rays through the view plane pixels.
- * * @author Project Assistant
+ * @author Project Assistant
  */
 public class Camera implements Cloneable {
     // Camera location and orientation vectors
@@ -50,6 +52,12 @@ public class Camera implements Cloneable {
     /** Pixel manager for supporting multi-threading and debug print */
     private PixelManager pixelManager;
 
+    // --- Depth of Field Fields ---
+    /** The distance from the camera to the focal plane */
+    private double focalDistance = 0.0;
+    /** The sampling grid generator for the aperture (Depth of Field) */
+    private Blackboard apertureBlackboard = null;
+
     /**
      * Private default constructor for Camera.
      */
@@ -58,7 +66,7 @@ public class Camera implements Cloneable {
 
     /**
      * Static method to get a new Builder instance.
-     * * @return a new Builder instance
+     * @return a new Builder instance
      */
     public static Builder getBuilder() {
         return new Builder();
@@ -89,6 +97,53 @@ public class Camera implements Cloneable {
     }
 
     /**
+     * Constructs a beam of rays for a specific pixel to simulate Depth of Field.
+     * If the aperture is not set or its resolution is 1, returns a single ray.
+     * * @param j pixel's column index
+     * @param i pixel's row index
+     * @return a list of rays passing through the pixel and converging at the focal point
+     */
+    public List<Ray> constructRayBeam(int j, int i) {
+        Ray centralRay = constructRay(j, i);
+
+        // If DoF is turned off or only 1 sample is requested, return the central ray
+        if (apertureBlackboard == null || focalDistance == 0.0) {
+            return List.of(centralRay);
+        }
+
+        List<Double3> apertureOffsets = apertureBlackboard.generatePoints();
+        if (apertureOffsets == null || apertureOffsets.size() <= 1) {
+            return List.of(centralRay);
+        }
+
+        // Calculate the distance to the focal plane along the central ray.
+        // _vTo is the camera's forward direction.
+        double nv = alignZero(centralRay.direction().dotProduct(_vTo));
+        if (isZero(nv)) {
+            return List.of(centralRay); // Edge case protection
+        }
+
+        double t = focalDistance / nv;
+        Point focalPoint = centralRay.getPoint(t);
+
+        List<Ray> beam = new LinkedList<>();
+        // Generate rays from the aperture to the focal point
+        for (Double3 offset : apertureOffsets) {
+            Point pStart = _p0;
+            if (!isZero(offset._d1())) {
+                pStart = pStart.add(_vRight.scale(offset._d1()));
+            }
+            if (!isZero(offset._d2())) {
+                pStart = pStart.add(_vUp.scale(offset._d2()));
+            }
+
+            beam.add(new Ray(pStart, focalPoint.subtract(pStart)));
+        }
+
+        return beam;
+    }
+
+    /**
      * Builder class for creating Camera objects using the Builder pattern.
      */
     public static class Builder {
@@ -99,8 +154,7 @@ public class Camera implements Cloneable {
 
         /**
          * Sets the camera's location.
-         * * @param location the camera's position
-         *
+         * @param location the camera's position
          * @return the builder instance
          */
         public Builder setLocation(Point location) {
@@ -110,8 +164,7 @@ public class Camera implements Cloneable {
 
         /**
          * Sets the camera's orientation using forward and up vectors.
-         * * @param to direction vector towards the scene
-         *
+         * @param to direction vector towards the scene
          * @param up general up direction vector
          * @return the builder instance
          */
@@ -123,8 +176,7 @@ public class Camera implements Cloneable {
 
         /**
          * Sets the camera's orientation towards a target point.
-         * * @param target the point the camera is looking at
-         *
+         * @param target the point the camera is looking at
          * @param up general up direction vector
          * @return the builder instance
          */
@@ -136,8 +188,7 @@ public class Camera implements Cloneable {
 
         /**
          * Sets the camera's orientation towards a target point with default Y-axis up.
-         * * @param target the point the camera is looking at
-         *
+         * @param target the point the camera is looking at
          * @return the builder instance
          */
         public Builder setDirection(Point target) {
@@ -148,8 +199,7 @@ public class Camera implements Cloneable {
 
         /**
          * Sets the physical size of the view plane.
-         * * @param width  physical width
-         *
+         * @param width  physical width
          * @param height physical height
          * @return the builder instance
          */
@@ -161,8 +211,7 @@ public class Camera implements Cloneable {
 
         /**
          * Sets the distance between the camera and the view plane.
-         * * @param distance the distance value
-         *
+         * @param distance the distance value
          * @return the builder instance
          */
         public Builder setVpDistance(double distance) {
@@ -172,8 +221,7 @@ public class Camera implements Cloneable {
 
         /**
          * Sets the resolution of the view plane.
-         * * @param nX number of pixels in a row
-         *
+         * @param nX number of pixels in a row
          * @param nY number of pixels in a column
          * @return the builder instance
          */
@@ -186,10 +234,6 @@ public class Camera implements Cloneable {
         /**
          * Set multi-threading
          * @param threads number of threads.
-         * -2 means number of logical processors less SPARE_THREADS.
-         * -1 means stream processing parallelization.
-         * 0 means multi-threading is not activated.
-         * 1 and more means literally number of threads.
          * @return builder object itself
          */
         public Builder setMultithreading(int threads) {
@@ -206,7 +250,7 @@ public class Camera implements Cloneable {
 
         /**
          * Set debug printing interval.
-         * @param interval printing interval in seconds. If it's zero there won't be printing at all.
+         * @param interval printing interval in seconds.
          * @return builder object itself
          */
         public Builder setDebugPrint(double interval) {
@@ -217,8 +261,29 @@ public class Camera implements Cloneable {
         }
 
         /**
+         * Sets the focal distance for Depth of Field.
+         * @param focalDistance the distance to the focal plane
+         * @return the builder instance
+         */
+        public Builder setFocalDistance(double focalDistance) {
+            if (focalDistance < 0)
+                throw new IllegalArgumentException("Focal distance cannot be negative");
+            _camera.focalDistance = focalDistance;
+            return this;
+        }
+
+        /**
+         * Sets the blackboard used to generate points on the aperture window.
+         * @param blackboard the blackboard instance
+         * @return the builder instance
+         */
+        public Builder setApertureBlackboard(Blackboard blackboard) {
+            _camera.apertureBlackboard = blackboard;
+            return this;
+        }
+
+        /**
          * Sets the ray tracer for the camera.
-         *
          * @param scene the scene to render
          * @param type  the type of ray tracer to use
          * @return the builder itself
@@ -234,43 +299,30 @@ public class Camera implements Cloneable {
 
         /**
          * Finalizes the camera construction with specific order of checks.
-         * * @return a ready-to-use Camera object (cloned)
-         *
-         * @throws MissingResourceException if mandatory data is missing
-         * @throws IllegalArgumentException if data is invalid
+         * @return a ready-to-use Camera object (cloned)
          */
         public Camera build() {
-            // Must follow this specific order
             checkResolution();
             checkLocationAndDirection();
             checkViewPlane();
-            // Ensure resolution was set and create ImageWriter
             if (_camera._width == 0 || _camera._height == 0)
                 throw new MissingResourceException("Missing resolution data", "Camera", "resolution");
             _camera._imageWriter = new ImageWriter(_camera._nX, _camera._nY);
-            // If rayTracer was not provided, set a default one
             if (_camera._rayTracer == null) {
                 setRayTracer(new Scene("default"), RayTracerType.SIMPLE);
             }
             try {
-                // Return a clone of the internal camera object
                 return (Camera) _camera.clone();
             } catch (CloneNotSupportedException e) {
                 return null;
             }
         }
 
-        /**
-         * Validates that resolution values are positive.
-         */
         private void checkResolution() {
             if (_camera._nX <= 0 || _camera._nY <= 0)
                 throw new IllegalArgumentException("Resolution must be positive");
         }
 
-        /**
-         * Validates location and orientation, and computes vRight.
-         */
         private void checkLocationAndDirection() {
             if (_camera._p0 == null)
                 throw new MissingResourceException("Missing camera location", "Camera", "Location");
@@ -293,9 +345,6 @@ public class Camera implements Cloneable {
             _camera._vUp = _camera._vRight.crossProduct(_camera._vTo);
         }
 
-        /**
-         * Validates view plane dimensions and distance, and computes helper fields.
-         */
         private void checkViewPlane() {
             if (_camera._width <= 0 || _camera._height <= 0)
                 throw new IllegalArgumentException("View plane size must be positive");
@@ -310,7 +359,6 @@ public class Camera implements Cloneable {
 
     /**
      * Renders the image by casting rays through all pixels.
-     *
      * @return the camera itself
      */
     public Camera renderImage() {
@@ -322,10 +370,6 @@ public class Camera implements Cloneable {
         };
     }
 
-    /**
-     * Render image without multi-threading
-     * @return the camera object itself
-     */
     private Camera renderImageNoThreads() {
         for (int i = 0; i < _nY; ++i) {
             for (int j = 0; j < _nX; ++j) {
@@ -335,10 +379,6 @@ public class Camera implements Cloneable {
         return this;
     }
 
-    /**
-     * Render image using multi-threading by parallel streaming
-     * @return the camera object itself
-     */
     private Camera renderImageStream() {
         IntStream.range(0, _nY).parallel()
                 .forEach(i -> IntStream.range(0, _nX).parallel()
@@ -346,10 +386,6 @@ public class Camera implements Cloneable {
         return this;
     }
 
-    /**
-     * Render image using multi-threading by creating and running raw threads
-     * @return the camera object itself
-     */
     private Camera renderImageRawThreads() {
         var threads = new LinkedList<Thread>();
         int threadsToRun = threadsCount;
@@ -370,13 +406,25 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Casts a ray through a specific pixel and colors it.
+     * Casts a beam of rays through a specific pixel, calculates their average color,
+     * and writes it to the image. Updates the pixel manager if active.
      */
     private void castRay(int nX, int nY, int j, int i) {
-        Ray ray = constructRay(j, i);
-        Color color = _rayTracer.traceRay(ray);
+        List<Ray> beam = constructRayBeam(j, i);
+
+        Color color = Color.BLACK;
+        for (Ray ray : beam) {
+            color = color.add(_rayTracer.traceRay(ray));
+        }
+
+        // Average the color across all rays in the beam
+        color = color.reduce(beam.size());
+
         _imageWriter.writePixel(j, i, color);
-        pixelManager.pixelDone(); // חובה לדווח למנהל הפיקסלים על סיום העבודה
+
+        if (pixelManager != null) {
+            pixelManager.pixelDone(); // חובה לדווח למנהל הפיקסלים על סיום העבודה
+        }
     }
 
     /**
