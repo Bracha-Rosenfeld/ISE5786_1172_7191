@@ -53,9 +53,12 @@ public class Camera implements Cloneable {
     private PixelManager pixelManager;
 
     // --- Depth of Field Fields ---
-    /** The distance from the camera to the focal plane */
+    /** * The distance from the camera's location to the focal plane.
+     */
     private double focalDistance = 0.0;
-    /** The sampling grid generator for the aperture (Depth of Field) */
+    /** * The blackboard assistant used for generating point offsets on the aperture window
+     * to simulate depth of field distributed ray tracing.
+     */
     private Blackboard apertureBlackboard = null;
 
     /**
@@ -261,9 +264,11 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the focal distance for Depth of Field.
-         * @param focalDistance the distance to the focal plane
-         * @return the builder instance
+         * Sets the focal distance between the camera and the focal plane for depth of field.
+         *
+         * @param focalDistance the distance to the focal plane, must be non-negative
+         * @return the builder instance itself for chaining
+         * @throws IllegalArgumentException if the focal distance is negative
          */
         public Builder setFocalDistance(double focalDistance) {
             if (focalDistance < 0)
@@ -273,9 +278,10 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the blackboard used to generate points on the aperture window.
-         * @param blackboard the blackboard instance
-         * @return the builder instance
+         * Sets the blackboard generator used to sample points across the aperture area.
+         *
+         * @param blackboard the blackboard instance containing sampling configurations
+         * @return the builder instance itself for chaining
          */
         public Builder setApertureBlackboard(Blackboard blackboard) {
             _camera.apertureBlackboard = blackboard;
