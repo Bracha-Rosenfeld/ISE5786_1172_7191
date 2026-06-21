@@ -13,34 +13,42 @@ import static primitives.Util.isZero;
 import static primitives.Util.alignZero;
 
 /**
- * Camera class representing a point of view in the 3D scene.
- * It handles the creation of rays through the view plane pixels.
- * @author Project Assistant
+ * Camera class representing a point of view in the 3D scene environment.
+ * It handles the creation of primary rays and distributed ray beams through
+ * the view plane pixels, supporting multi-threading and Depth of Field effects.
  */
 public class Camera implements Cloneable {
-    // Camera location and orientation vectors
+    /** The position point of the camera in the 3D space. */
     private Point _p0;
+    /** The forward orientation vector pointing from the camera toward the scene. */
     private Vector _vTo;
+    /** The upward orientation vector defining the vertical top orientation of the camera. */
     private Vector _vUp;
+    /** The rightward orientation vector orthogonal to both _vTo and _vUp. */
     private Vector _vRight;
 
-    // View plane physical dimensions and distance
+    /** The physical horizontal width of the view plane. */
     private double _width;
+    /** The physical vertical height of the view plane. */
     private double _height;
+    /** The orthogonal distance between the camera position point and the view plane. */
     private double _distance;
 
-    /** Image writer for the camera */
+    /** Image writer implementation instance assigned for handling actual file rendering output. */
     private ImageWriter _imageWriter;
-    /** Ray tracer for the camera */
+    /** Ray tracer instance responsible for finding geometric intersections and calculating shading colors. */
     private RayTracerBase _rayTracer;
 
-    // View plane resolution (defaulting to 1)
+    /** View plane horizontal resolution representing total number of pixel columns. */
     private int _nX = 1;
+    /** View plane vertical resolution representing total number of pixel rows. */
     private int _nY = 1;
 
-    // Computed helper fields to save repetitive calculations
+    /** Calculated physical center point location of the view plane grid. */
     private Point _vpCenter;
+    /** Precomputed physical width of a single pixel unit in the view plane grid. */
     private double _pixelWidth;
+    /** Precomputed physical height of a single pixel unit in the view plane grid. */
     private double _pixelHeight;
 
     /** Amount of threads to use for rendering image by the camera */
@@ -62,7 +70,8 @@ public class Camera implements Cloneable {
     private Blackboard apertureBlackboard = null;
 
     /**
-     * Private default constructor for Camera.
+     * Private default constructor to prevent direct unconfigured instantiation
+     * and enforce structural assembly using the static Builder pattern.
      */
     private Camera() {
     }
@@ -100,11 +109,12 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Constructs a beam of rays for a specific pixel to simulate Depth of Field.
-     * If the aperture is not set or its resolution is 1, returns a single ray.
-     * * @param j pixel's column index
-     * @param i pixel's row index
-     * @return a list of rays passing through the pixel and converging at the focal point
+     * Constructs a distributed beam of scattered rays focused across a target point
+     * on the focal plane, simulating physical Depth of Field blur.
+     *
+     * @param j the vertical column location index inside the active view plane pixel matrix
+     * @param i the horizontal row location index inside the active view plane pixel matrix
+     * @return an unmodifiable List collection of sampled Rays targeting the computed point of focus
      */
     public List<Ray> constructRayBeam(int j, int i) {
         Ray centralRay = constructRay(j, i);
@@ -147,7 +157,8 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Builder class for creating Camera objects using the Builder pattern.
+     * Builder class for creating Camera objects using the fluid Builder pattern.
+     * Manages all semantic variable configurations, verification checks, and safety rules.
      */
     public static class Builder {
         // Final camera object to be populated
@@ -156,9 +167,9 @@ public class Camera implements Cloneable {
         private Point _target;
 
         /**
-         * Sets the camera's location.
-         * @param location the camera's position
-         * @return the builder instance
+         * Sets the spatial positioning coordinates where the focal lens assembly resides inside the universe.
+         * * @param location the localized point reference representing the new position
+         * @return the active internal Builder instance for structural step chaining
          */
         public Builder setLocation(Point location) {
             _camera._p0 = location;
@@ -166,10 +177,10 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the camera's orientation using forward and up vectors.
-         * @param to direction vector towards the scene
-         * @param up general up direction vector
-         * @return the builder instance
+         * Sets orientation vectors explicitly determining forward view angle and absolute upward tilt direction.
+         * * @param to the forward-facing look vector extending toward the world coordinate space
+         * @param up the vertical structural vector mapping the upward frame rotation bounds
+         * @return the active internal Builder instance for structural step chaining
          */
         public Builder setDirection(Vector to, Vector up) {
             _camera._vTo = to;
@@ -178,10 +189,11 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the camera's orientation towards a target point.
-         * @param target the point the camera is looking at
-         * @param up general up direction vector
-         * @return the builder instance
+         * Computes forward alignment automatically by pointing the view matrix directly
+         * at a targeted space point.
+         * * @param target the spatial target coordinate position to track
+         * @param up     the upward structural vector mapping the vertical layout bounds
+         * @return the active internal Builder instance for structural step chaining
          */
         public Builder setDirection(Point target, Vector up) {
             this._target = target;
@@ -190,9 +202,10 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the camera's orientation towards a target point with default Y-axis up.
-         * @param target the point the camera is looking at
-         * @return the builder instance
+         * Computes forward alignment automatically by pointing the view matrix directly
+         * at a targeted space point, defaulting to a vertical Y-axis up orientation (0,1,0).
+         * * @param target the spatial target coordinate position to track
+         * @return the active internal Builder instance for structural step chaining
          */
         public Builder setDirection(Point target) {
             this._target = target;
@@ -201,10 +214,10 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the physical size of the view plane.
-         * @param width  physical width
-         * @param height physical height
-         * @return the builder instance
+         * Sets the physical dimensions bounding the active flat projection view window frame.
+         * * @param width  the horizontal physical size value representing view plane width
+         * @param height the vertical physical size value representing view plane height
+         * @return the active internal Builder instance for structural step chaining
          */
         public Builder setVpSize(double width, double height) {
             _camera._width = width;
@@ -213,9 +226,9 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the distance between the camera and the view plane.
-         * @param distance the distance value
-         * @return the builder instance
+         * Sets the distance value between the camera point origin and the viewport screen.
+         * * @param distance the length value representing the focal viewport clearance distance
+         * @return the active internal Builder instance for structural step chaining
          */
         public Builder setVpDistance(double distance) {
             _camera._distance = distance;
@@ -223,10 +236,10 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the resolution of the view plane.
-         * @param nX number of pixels in a row
-         * @param nY number of pixels in a column
-         * @return the builder instance
+         * Configures the grid matrix scale representing total vertical rows and horizontal pixel columns.
+         * * @param nX total absolute horizontal subdivisions count mapping width resolution
+         * @param nY total absolute vertical subdivisions count mapping height resolution
+         * @return the active internal Builder instance for structural step chaining
          */
         public Builder setResolution(int nX, int nY) {
             _camera._nX = nX;
@@ -235,9 +248,10 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Set multi-threading
-         * @param threads number of threads.
-         * @return builder object itself
+         * Configures the multi-threaded execution parameters used during image rendering.
+         * * @param threads the thread count parameter limit, where negative configurations trigger smart auto-scaling
+         * @return the active internal Builder instance for structural step chaining
+         * @throws IllegalArgumentException if the parameter bounds drop below a value of -2
          */
         public Builder setMultithreading(int threads) {
             if (threads < -2)
@@ -252,9 +266,10 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Set debug printing interval.
-         * @param interval printing interval in seconds.
-         * @return builder object itself
+         * Configures a real-time terminal logging console reporting interval step value tracking render progression.
+         * * @param interval the duration window measured in seconds between subsequent logs
+         * @return the active internal Builder instance for structural step chaining
+         * @throws IllegalArgumentException if the provided numeric span falls below zero
          */
         public Builder setDebugPrint(double interval) {
             if (interval < 0)
@@ -264,11 +279,10 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the focal distance between the camera and the focal plane for depth of field.
-         *
-         * @param focalDistance the distance to the focal plane, must be non-negative
-         * @return the builder instance itself for chaining
-         * @throws IllegalArgumentException if the focal distance is negative
+         * Sets the precise distance separating the lens apparatus from the crisp plane of perfect focus.
+         * * @param focalDistance the absolute geometric distance setting the focal layer alignment depth
+         * @return the active internal Builder instance for structural step chaining
+         * @throws IllegalArgumentException if the distance parameter configuration is negative
          */
         public Builder setFocalDistance(double focalDistance) {
             if (focalDistance < 0)
@@ -278,10 +292,9 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the blackboard generator used to sample points across the aperture area.
-         *
-         * @param blackboard the blackboard instance containing sampling configurations
-         * @return the builder instance itself for chaining
+         * Attaches a customizable blackboard helper script to handle localized distributed aperture pattern generation.
+         * * @param blackboard the parameterized sampling grid template map containing matrix configuration rules
+         * @return the active internal Builder instance for structural step chaining
          */
         public Builder setApertureBlackboard(Blackboard blackboard) {
             _camera.apertureBlackboard = blackboard;
@@ -289,10 +302,11 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the ray tracer for the camera.
-         * @param scene the scene to render
-         * @param type  the type of ray tracer to use
-         * @return the builder itself
+         * Attaches a targeted rendering engine implementation subclass module to process trace lookups.
+         * * @param scene the active global universe model environment holding shapes and lights
+         * @param type  the enum structural variation tracking the style of pixel processing
+         * @return the active internal Builder instance for structural step chaining
+         * @throws IllegalArgumentException if an unknown or unmapped RayTracer pattern configuration is supplied
          */
         public Builder setRayTracer(Scene scene, RayTracerType type) {
             if (type == RayTracerType.SIMPLE) {
@@ -304,8 +318,10 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Finalizes the camera construction with specific order of checks.
-         * @return a ready-to-use Camera object (cloned)
+         * Validates all configured internal variables, sets up derived helper properties,
+         * and returns a ready-to-use cloned instance of the constructed Camera object.
+         * * @return a complete, verified Camera instance copy
+         * @throws MissingResourceException if mandatory properties like dimensions or positions are unconfigured
          */
         public Camera build() {
             checkResolution();
@@ -324,11 +340,21 @@ public class Camera implements Cloneable {
             }
         }
 
+        /**
+         * Verifies the resolution configurations to ensure matrix divisions remain positive.
+         * * @throws IllegalArgumentException if horizontal or vertical bounds equal or fall below zero
+         */
         private void checkResolution() {
             if (_camera._nX <= 0 || _camera._nY <= 0)
                 throw new IllegalArgumentException("Resolution must be positive");
         }
 
+        /**
+         * Validates geographic coordinates, aligns forward directions, and constructs
+         * an orthogonal coordinate system matrix tracking rightward and upward direction lines.
+         * * @throws MissingResourceException if critical orientation structures are unassigned
+         * @throws IllegalArgumentException if look coordinates conflict or describe parallel vectors
+         */
         private void checkLocationAndDirection() {
             if (_camera._p0 == null)
                 throw new MissingResourceException("Missing camera location", "Camera", "Location");
@@ -351,6 +377,11 @@ public class Camera implements Cloneable {
             _camera._vUp = _camera._vRight.crossProduct(_camera._vTo);
         }
 
+        /**
+         * Validates physical bounds sizing and derives helper fields such as center alignment
+         * coordinates and exact fractional pixel grid step spans.
+         * * @throws IllegalArgumentException if view window metric proportions measure negative or zero
+         */
         private void checkViewPlane() {
             if (_camera._width <= 0 || _camera._height <= 0)
                 throw new IllegalArgumentException("View plane size must be positive");
@@ -364,8 +395,9 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Renders the image by casting rays through all pixels.
-     * @return the camera itself
+     * Iterates across the grid coordinates, deploying ray computations
+     * based on the chosen thread routing configuration.
+     * * @return the modified Camera instance itself
      */
     public Camera renderImage() {
         pixelManager = new PixelManager(_nY, _nX, printInterval);
@@ -375,7 +407,11 @@ public class Camera implements Cloneable {
             default -> renderImageRawThreads();
         };
     }
-
+    /**
+     * Executes the rendering logic using a basic, single-threaded nested loop
+     * across all pixel coordinates sequentially.
+     * * @return the camera instance reference once the processing steps wrap up
+     */
     private Camera renderImageNoThreads() {
         for (int i = 0; i < _nY; ++i) {
             for (int j = 0; j < _nX; ++j) {
@@ -385,6 +421,11 @@ public class Camera implements Cloneable {
         return this;
     }
 
+    /**
+     * Leverages parallel Java Streams to execute automatic multi-threaded calculation loops
+     * across the view plane grid.
+     * * @return the camera instance reference once processing wraps up
+     */
     private Camera renderImageStream() {
         IntStream.range(0, _nY).parallel()
                 .forEach(i -> IntStream.range(0, _nX).parallel()
@@ -392,6 +433,11 @@ public class Camera implements Cloneable {
         return this;
     }
 
+    /**
+     * Instantiates and manages raw, low-level Java Thread instances to process pixels
+     * concurrently via a shared PixelManager worker pipeline.
+     * * @return the camera instance reference once all thread processes exit safely
+     */
     private Camera renderImageRawThreads() {
         var threads = new LinkedList<Thread>();
         int threadsToRun = threadsCount;
@@ -412,8 +458,13 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Casts a beam of rays through a specific pixel, calculates their average color,
-     * and writes it to the image. Updates the pixel manager if active.
+     * Coordinates the generation of ray targets passing through a precise pixel coordinate slot,
+     * averages color responses returned from the active tracer engine, and commits the result
+     * to the file layout tracker.
+     * * @param nX total horizontal viewport width matrix resolution divisions
+     * @param nY total vertical viewport height matrix resolution divisions
+     * @param j  the relative column coordinate position map tracking screen width placement
+     * @param i  the relative row coordinate position map tracking screen height placement
      */
     private void castRay(int nX, int nY, int j, int i) {
         List<Ray> beam = constructRayBeam(j, i);
@@ -434,7 +485,11 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Adds a grid to the image.
+     * Superimposes a visible uniform reference grid layer across the rendered output data array
+     * for verification and structural analysis.
+     * * @param interval the specific mathematical step gap count defining grid line intervals
+     * @param color    the programmatic color profile applied to the grid lines
+     * @return the active modified Camera instance reference
      */
     public Camera printGrid(int interval, Color color) {
         for (int i = 0; i < _nY; i++) {
@@ -448,7 +503,9 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Delegates image writing to the image writer.
+     * Delegates file compilation and memory writing steps to the internal image writer mechanism
+     * to save the picture output to disk.
+     * * @param fileName the final filename path label assigned to the generated file output
      */
     public void writeToImage(String fileName) {
         _imageWriter.writeToImage(fileName);

@@ -7,12 +7,20 @@ import primitives.*;
 import scene.Scene;
 
 /**
- * סצנת חדר Cornell Box מתקדמת (בסגנון "דיורמה" ישרה ואסתטית).
- * בדיקה בסיסית - ללא עומק שדה (DOF).
- * המצלמה בתוך החדר (ללא מסגרת תכלת), ומגדל הכדורים קרוב למצלמה.
+ * Advanced Cornell Box room scene test class (Diorama style).
+ * It creates a 3D rendered picture with advanced materials, lighting,
+ * architectural elements, and geometric constructs.
  */
 public class CustomPictureTest {
-
+    /**
+     * Adds a simple 3D bird model made of two triangles to the given scene.
+     *
+     * @param scene the scene to add the bird geometry to
+     * @param x     the X coordinate for the bird's head position
+     * @param y     the Y coordinate for the bird's head position
+     * @param z     the Z coordinate for the bird's head position
+     * @param size  the scaling factor for the bird's wings and body
+     */
     private void addBird(Scene scene, double x, double y, double z, double size) {
         Point head = new Point(x, y, z);
         Point tail = new Point(x, y, z + 4 * size);
@@ -28,6 +36,11 @@ public class CustomPictureTest {
         );
     }
 
+    /**
+     * Generates and renders a comprehensive customized picture of a styled room.
+     * Sets up advanced illumination sources, complex layered sphere pyramids,
+     * curtains, windows, volumetric shapes, and triggers the rendering process.
+     */
     @Test
     public void customPicture() {
         Scene scene = new Scene("Beautiful Room Foreground Focus")

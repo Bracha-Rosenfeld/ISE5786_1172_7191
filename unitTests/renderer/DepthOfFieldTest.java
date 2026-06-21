@@ -7,12 +7,26 @@ import primitives.*;
 import scene.Scene;
 
 /**
- * טסט עבור מיני פרויקט 1 - עומק שדה (Depth of Field).
- * הסצנה המעוצבת והמושלמת: מגדל באמצע, קוביית כרום מאחור, שטיח וקירות קרם.
- * מפיק שתי תמונות - אחת עם עומק שדה ואחת בלי - כדי למדוד זמנים ולהראות את ההבדל.
+ * Performance and visual regression testing class for Mini-Project 1 (Depth of Field).
+ * It designs a complex 3D interior diorama scene featuring multi-layered materials,
+ * structural elements, and a custom illumination setup.
+ * * This test produces a comparative analysis by rendering two distinct images:
+ * 1. A pinhole baseline photograph without any depth-of-field simulation (infinite focus).
+ * 2. A distributed ray-traced photograph simulating a finite physical aperture window,
+ * focusing precisely on the foreground elements while smoothly blurring the background.
+
  */
 public class DepthOfFieldTest {
-
+    /**
+     * Constructs a stylized 3D low-poly bird model using twin planar triangles
+     * and appends it to the geometric inventory of the active scene environment.
+     *
+     * @param scene the target Scene context holding all geometric entities
+     * @param x     the exact X-axis coordinate location for the apex head point
+     * @param y     the exact Y-axis coordinate location for the apex head point
+     * @param z     the exact Z-axis coordinate location for the apex head point
+     * @param size  the dimensional scaling factor applied to the wing and body span
+     */
     private void addBird(Scene scene, double x, double y, double z, double size) {
         Point head = new Point(x, y, z);
         Point tail = new Point(x, y, z + 4 * size);
@@ -27,7 +41,14 @@ public class DepthOfFieldTest {
                 new Triangle(head, rightWing, tail).setEmission(birdColor).setMaterial(birdMat)
         );
     }
-
+    /**
+     * Executes the comprehensive double-pass rendering performance validation test.
+     * Builds a detailed modern room diorama containing an expansive floor, walls,
+     * structured window frames, layered glass sphere pyramids on an illuminated podium,
+     * complex metallic prisms, ambient background elements, and directional light arrays.
+     * * Orchestrates two full-scale image generations, applying multi-threaded tracking
+     * and a randomized jittered blackboard matrix to showcase soft focus transformations.
+     */
     @Test
     public void testDepthOfField() {
         Scene scene = new Scene("Beautiful Room Foreground Focus")
