@@ -2,20 +2,29 @@ package primitives;
 
 /**
  * Passive Data Structure (PDS) representing the material properties of a geometry.
+ * Holds coefficients for ambient, diffuse, specular, reflection, and transmission effects.
+ * * @author Project Assistant
  */
 public class Material {
-    /** Ambient light attenuation factor */
+    /** Ambient light attenuation factor. */
     public Double3 kA = Double3.ONE;
-    /** Diffuse attenuation factor */
+    /** Diffuse attenuation factor. */
     public Double3 kD = Double3.ZERO;
-    /** Specular attenuation factor */
+    /** Specular attenuation factor. */
     public Double3 kS = Double3.ZERO;
-    /** Transparency attenuation factor */
+    /** Transparency attenuation factor. */
     public Double3 kT = Double3.ZERO;
-    /** Reflection attenuation factor */
+    /** Reflection attenuation factor. */
     public Double3 kR = Double3.ZERO;
-    /** Shininess factor (determines the size of the specular highlight) */
+    /** Shininess factor (determines the size of the specular highlight). */
     public int nShininess = 0;
+
+    /**
+     * Default constructor initializing default material values.
+     */
+    public Material() {
+        // Explicit default constructor to adhere to documentation rules
+    }
 
     /**
      * Sets the ambient attenuation factor kA using a Double3 value.
