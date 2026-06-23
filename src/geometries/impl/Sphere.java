@@ -1,6 +1,7 @@
 package geometries.impl;
 
 import geometries.api.RadialGeometry;
+import geometries.api.Intersectable;
 import primitives.*;
 
 import java.util.ArrayList;
@@ -8,24 +9,31 @@ import java.util.List;
 
 import static primitives.Util.alignZero;
 
-/**
- * Class Sphere represents a sphere in 3D space.
- *
- * @author Dina Black and Bracha Rosenfeld
- */
 public final class Sphere extends RadialGeometry {
-    /** The center point of the sphere */
     private final Point _center;
 
-    /**
-     * Constructor to initialize a sphere with a center point and a radius.
-     *
-     * @param center the center point
-     * @param radius the radius value
-     */
     public Sphere(Point center, double radius) {
         super(radius);
         _center = center;
+    }
+
+    @Override
+    public Intersectable setBvhIsOn(boolean bvhIsOn) {
+        super.setBvhIsOn(bvhIsOn);
+        // חישוב הקופסה מתבצע אך ורק אם מנגנון ההאצה הודלק
+        if (bvhIsOn) {
+            double x = getX(_center);
+            double y = getY(_center);
+            double z = getZ(_center);
+
+            this.minX = x - _radius;
+            this.maxX = x + _radius;
+            this.minY = y - _radius;
+            this.maxY = y + _radius;
+            this.minZ = z - _radius;
+            this.maxZ = z + _radius;
+        }
+        return this;
     }
 
     @Override
@@ -33,9 +41,7 @@ public final class Sphere extends RadialGeometry {
         Point p0 = ray.origin();
         Vector v = ray.direction();
 
-        // Special case: ray starts exactly at the center of the sphere
         if (_center.equals(p0)) {
-            // Check if the radius (the distance) is within maxDistance
             if (alignZero(_radius - maxDistance) <= 0) {
                 return List.of(new Intersection(this, ray.getPoint(_radius)));
             }
@@ -46,11 +52,9 @@ public final class Sphere extends RadialGeometry {
         double tm = alignZero(v.dotProduct(u));
         double dSquared = alignZero(u.lengthSquared() - tm * tm);
 
-        // If dSquared is negative (due to floating point issues), make it 0
         if (dSquared < 0) dSquared = 0;
         double d = Math.sqrt(dSquared);
 
-        // If d >= radius, there are no intersections.
         if (alignZero(d - _radius) >= 0) {
             return null;
         }
@@ -62,13 +66,11 @@ public final class Sphere extends RadialGeometry {
 
         List<Intersection> result = null;
 
-        // Check if t1 is strictly positive and within maxDistance
         if (t1 > 0 && alignZero(t1 - maxDistance) <= 0) {
             result = new ArrayList<>();
             result.add(new Intersection(this, ray.getPoint(t1)));
         }
 
-        // Check if t2 is strictly positive and within maxDistance
         if (t2 > 0 && alignZero(t2 - maxDistance) <= 0) {
             if (result == null) {
                 result = new ArrayList<>();

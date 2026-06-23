@@ -1,34 +1,16 @@
 package geometries.impl;
 
 import geometries.api.Geometry;
+import geometries.api.Intersectable;
 import primitives.*;
 
 import java.util.List;
 
-/**
- * Represents a convex polygon in a 3D Cartesian coordinate system.
- * <p>
- * The polygon is defined by an ordered sequence of vertices.
- * All vertices must lie in the same plane and be arranged along the
- * polygon edge path.
- * </p>
- * <p>
- * The polygon must be convex.
- * </p>
- *
- * @author Dina Black and Bracha Rosenfeld
- */
 public class Polygon extends Geometry {
-    /** Ordered list of polygon vertices */
     protected final List<Point> _vertices;
-    /** Plane containing the polygon */
     protected final Plane _plane;
-    /** Number of vertices */
     private final int _size;
 
-    /**
-     * Constructs a convex polygon from ordered vertices.
-     */
     public Polygon(Point... vertices) {
         if (vertices.length < 3)
             throw new IllegalArgumentException("A polygon can't have less than 3 vertices");
@@ -36,6 +18,7 @@ public class Polygon extends Geometry {
         _size = vertices.length;
 
         _plane = new Plane(vertices[0], vertices[1], vertices[2]);
+
         if (_size == 3) return;
 
         Vector n = _plane.getNormal(vertices[0]);
@@ -54,17 +37,38 @@ public class Polygon extends Geometry {
     }
 
     @Override
+    public Intersectable setBvhIsOn(boolean bvhIsOn) {
+        super.setBvhIsOn(bvhIsOn);
+        // חישוב הקופסה רק לפי דרישה
+        if (bvhIsOn) {
+            minX = minY = minZ = Double.POSITIVE_INFINITY;
+            maxX = maxY = maxZ = Double.NEGATIVE_INFINITY;
+
+            for (Point p : _vertices) {
+                double x = getX(p);
+                double y = getY(p);
+                double z = getZ(p);
+
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+                if (z < minZ) minZ = z;
+                if (z > maxZ) maxZ = z;
+            }
+        }
+        return this;
+    }
+
+    @Override
     protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
-        // 1. Intersect with the plane containing the polygon using maxDistance!
         List<Intersection> planeIntersections = _plane.calcIntersections(ray, maxDistance);
 
-        // If the ray doesn't intersect the plane (or it's too far), return null
         if (planeIntersections == null) {
             return null;
         }
 
         Point point = planeIntersections.getFirst().point;
-
         Point p0 = ray.origin();
         Vector v = ray.direction();
 

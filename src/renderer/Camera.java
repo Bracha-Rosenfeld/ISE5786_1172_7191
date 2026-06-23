@@ -392,6 +392,30 @@ public class Camera implements Cloneable {
             _camera._pixelWidth = _camera._width / _camera._nX;
             _camera._pixelHeight = _camera._height / _camera._nY;
         }
+        /**
+         * Turns on the Bounding Volume Hierarchy (BVH) improvement and builds the tree.
+         * @return the builder itself
+         */
+        public Builder enableBVH() {
+            // הגישה לסצנה תלויה באיך שהיא נשמרת אצלכם ב-Builder או ב-RayTracer.
+            // בהנחה שה-RayTracer שלכם שומר את הסצנה והיא נגישה:
+            if (_camera._rayTracer instanceof renderer.SimpleRayTracer rt) {
+                rt._scene.geometries.setBvhIsOn(true);
+                rt._scene.geometries.buildHierarchy();
+            } else if (_camera._rayTracer instanceof renderer.RayTracerBase rt) {
+                rt._scene.geometries.setBvhIsOn(true);
+                rt._scene.geometries.buildHierarchy();
+            }
+            return this;
+        }
+
+        /**
+         * Alias for enableBVH, used for backward compatibility in tests.
+         * @return the builder itself
+         */
+        public Builder enableCBR() {
+            return enableBVH();
+        }
     }
 
     /**
