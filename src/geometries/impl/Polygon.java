@@ -5,12 +5,28 @@ import geometries.api.Intersectable;
 import primitives.*;
 
 import java.util.List;
-
+/**
+ * Class representing a flat convex polygon in a 3D space.
+ * The polygon is defined by an ordered list of vertices that must all lie on the same plane
+ * and form a convex shape. Inherits from {@link Geometry}.
+ * * @author Computer Graphics Course
+ */
 public class Polygon extends Geometry {
+    /** The ordered list of vertices defining the polygon boundaries. */
     protected final List<Point> _vertices;
+    /** The supporting plane in which the polygon resides. */
     protected final Plane _plane;
+    /** The total number of vertices forming the polygon. */
     private final int _size;
-
+    /**
+     * Constructor to initialize a polygon with a series of vertices.
+     * Validates that there are at least 3 vertices, all vertices lie on the same plane,
+     * and that the polygon is convex and ordered.
+     * * @param vertices An ordered array/varargs of points representing the polygon's vertices.
+     * @throws IllegalArgumentException If vertices count is less than 3.
+     * @throws IllegalArgumentException If vertices do not lie on the same plane.
+     * @throws IllegalArgumentException If vertices are not ordered properly or form a non-convex shape.
+     */
     public Polygon(Point... vertices) {
         if (vertices.length < 3)
             throw new IllegalArgumentException("A polygon can't have less than 3 vertices");
@@ -35,7 +51,13 @@ public class Polygon extends Geometry {
                 throw new IllegalArgumentException("All vertices must be ordered and the polygon must be convex");
         }
     }
-
+    /**
+     * Enables or disables BVH (Bounding Box) mechanism for this polygon.
+     * When turned on, it scans all vertices to calculate the exact structural minimum
+     * and maximum X, Y, Z coordinates for the Axis-Aligned Bounding Box (AABB).
+     * * @param bvhIsOn true to turn BVH on, false to turn it off.
+     * @return The updated Polygon instance itself for method chaining.
+     */
     @Override
     public Intersectable setBvhIsOn(boolean bvhIsOn) {
         super.setBvhIsOn(bvhIsOn);
@@ -59,7 +81,14 @@ public class Polygon extends Geometry {
         }
         return this;
     }
-
+    /**
+     * Finds the intersection points between a given ray and the polygon, bounded by a maximum distance.
+     * It first finds the intersection with the supporting plane, and then checks whether
+     * the intersection point lies within the boundaries of the polygon using vector math.
+     * * @param ray         The ray intersecting the polygon.
+     * @param maxDistance The maximum valid distance threshold for the intersection.
+     * @return A list containing a single {@link Intersection} point if it lies inside, or null otherwise.
+     */
     @Override
     protected List<Intersection> calcIntersectionsHelper(Ray ray, double maxDistance) {
         List<Intersection> planeIntersections = _plane.calcIntersections(ray, maxDistance);
@@ -97,7 +126,12 @@ public class Polygon extends Geometry {
 
         return List.of(new Intersection(this, point));
     }
-
+    /**
+     * Gets the normal vector to the polygon's surface at a given point.
+     * Delegates the calculation to the supporting plane.
+     * * @param point The point on the polygon surface to find the normal at.
+     * @return The normal vector orthogonal to the polygon surface.
+     */
     @Override
     public Vector getNormal(Point point) {
         return _plane.getNormal(point);
