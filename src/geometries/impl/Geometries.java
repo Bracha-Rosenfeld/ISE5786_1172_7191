@@ -8,29 +8,46 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Composite class representing a collection of geometries.
+ * Composite class representing a collection of geometric shapes.
+ * This class implements the Composite Design Pattern and extends {@link Intersectable}.
+ * It provides mechanisms for updating spatial bounding boxes, building an automated
+ * Bounding Volume Hierarchy (BVH) tree, and flattening nested structures to optimize
+ * ray tracing intersection performance.
  */
 public final class Geometries extends Intersectable {
+    /** The list of individual or nested geometries contained in this collection. */
     private final List<Intersectable> _geometries = new ArrayList<>();
-
+    /**
+     * Default constructor.
+     * Initializes an empty geometry collection with an uninitialized bounding box
+     * (boundaries set to infinite inverse values, to be calculated upon activation).
+     */
     public Geometries() {
         // מתחילים ללא קופסה. תחושב רק על פי דרישה.
         minX = minY = minZ = Double.POSITIVE_INFINITY;
         maxX = maxY = maxZ = Double.NEGATIVE_INFINITY;
     }
-
+    /**
+     * Constructor that initializes the collection with a given set of geometries.
+     * * @param geometries A variable number of geometry objects to add to the collection.
+     */
     public Geometries(Intersectable... geometries) {
         this();
         add(geometries);
     }
-
+    /**
+     * Adds one or more geometric shapes to the collection.
+     * Note: Bounding box properties are not updated immediately for performance optimization.
+     * * @param geometries A variable number of geometry objects to be added.
+     */
     public void add(Intersectable... geometries) {
         Collections.addAll(_geometries, geometries);
         // הערה חשובה: לא מעדכנים כאן את ה-AABB כדי לחסוך ביצועים. מתעדכן רק דרך setBvhIsOn.
     }
 
     /**
-     * Updates the bounding box based on the children geometries.
+     * Recalculates and updates the composite bounding box coordinates
+     * by enclosing all the individual bounding boxes of the children geometries.
      */
     private void updateBoundingBox() {
         minX = minY = minZ = Double.POSITIVE_INFINITY;
@@ -74,7 +91,9 @@ public final class Geometries extends Intersectable {
     }
 
     /**
-     * Builds an automatic Bounding Volume Hierarchy (BVH) tree.
+     * Builds an automatic, balanced Bounding Volume Hierarchy (BVH) tree structure.
+     * It recursively splits the elements into midpoints along the longest axis
+     * of the bounding volume to reduce ray intersection complexity.
      */
     public void buildHierarchy() {
         if (_geometries.size() <= 2) {
@@ -133,8 +152,9 @@ public final class Geometries extends Intersectable {
     }
 
     /**
-     * Flattens the hierarchy, removing any nested Geometries and placing all basic
-     * shapes into a single flat list. Used for measuring baseline performance.
+     * Flattens the collection hierarchy by unpacking all nested Geometries structures,
+     * leaving only base geometric shapes in a unified linear list.
+     * This is useful for performance benchmarking comparisons.
      */
     public void flatten() {
         List<Intersectable> flatList = new ArrayList<>();
@@ -149,7 +169,10 @@ public final class Geometries extends Intersectable {
     }
 
     /**
-     * Recursive helper to extract all geometries from nested structures.
+     * Recursive internal helper method to extract all deep basic shapes from nested
+     * composite groups and aggregate them into a linear target list.
+     * * @param geometries The current composite Geometries instance to evaluate.
+     * @param flatList   The destination list gathering the basic shapes.
      */
     private void flattenHelper(Geometries geometries, List<Intersectable> flatList) {
         for (Intersectable geo : geometries._geometries) {
