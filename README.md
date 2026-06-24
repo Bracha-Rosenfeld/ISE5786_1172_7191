@@ -36,10 +36,6 @@ Implementation of a **Bounding Volume Hierarchy (BVH)** for ray-tracing optimiza
 **Final Rendered Scene:**
 <br>
 <br>
-<img width="302" height="284" alt="Screenshot 2026-06-23 222828" src="https://github.com/user-attachments/assets/f0b2aa4e-ba99-4fc6-8f4f-04eb409604c3" />
-
-<br>
-<br>
 <img width="286" height="286" alt="Screenshot 2026-06-23 222842" src="https://github.com/user-attachments/assets/f60322d1-d8ae-44c8-b6df-d4ef676cbe6b" />
 
 <br>
