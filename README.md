@@ -15,7 +15,7 @@ Implementation of a **Bounding Volume Hierarchy (BVH)** for ray-tracing optimiza
 
 ---
 
-## 3. Results (Performance Comparison)
+## 3. Results (Performance Comparison) in seconds
 
 | Scene Mode       | No MT (s) | With MT (s) | Speedup  |
 |------------------|-----------|-------------|----------|
